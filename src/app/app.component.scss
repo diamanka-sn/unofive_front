@@ -1,0 +1,253 @@
+@import 'ol/ol.css'; 
+
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- 1. Barre de Navigation (Header) --- */
+.header {
+    background-color: white; /* Fond clair comme sur l'exemple */
+    color: #333;
+    height: 70px; /* Plus grand pour le look institutionnel */
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10; /* Assure qu'il est au-dessus de la carte */
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    margin-right: 30px;
+}
+
+.logo h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    color: #007bff; /* Couleur d'accentuation */
+    margin-left: 10px;
+}
+
+/* Style de la barre de recherche (simple) */
+.search-bar {
+    display: flex;
+    flex-grow: 1; /* Prend l'espace central */
+    max-width: 600px;
+}
+.search-input {
+    padding: 8px 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    width: 100%;
+}
+.search-button {
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #007bff;
+    padding: 8px 15px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+.top-nav a {
+    color: #333;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 0.95rem;
+}
+.connect-button {
+    background-color: transparent;
+    border: 1px solid #007bff;
+    color: #007bff;
+    padding: 6px 15px;
+    border-radius: 4px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+
+/* --- 2. Conteneur de la Carte (Cœur de l'adaptation) --- */
+.map-container {
+    flex-grow: 1; 
+    width: 100%;
+    height: 100%; 
+    position: relative; /* ESSENTIEL : Base pour la position Absolue des widgets */
+}
+
+/* --- 3. Style des Widgets Flottants (Contrôles) --- */
+.map-widget {
+    position: absolute; /* Place le widget au-dessus de la carte */
+    z-index: 5; /* Assure qu'ils sont cliquables */
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 0;
+    margin: 15px; /* Espacement par rapport au bord */
+}
+
+.map-widget button {
+    display: block;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 40px;
+}
+
+/* Positionnement Spécifique des Widgets */
+
+/* Contrôle de Couche à Gauche */
+.layers-control {
+    left: 15px;
+    top: 15px;
+}
+.layers-control button {
+    background-color: #f8f8f8;
+    border-radius: 4px;
+}
+
+/* Contrôle de Navigation à Droite */
+.navigation-controls {
+    right: 15px;
+    top: 15px;
+}
+
+/* Séparateur pour les boutons de zoom */
+.navigation-controls button {
+    border-top: 1px solid #eee;
+}
+.navigation-controls button:first-child {
+    border-top: none;
+}
+
+/* --- 1. Style Global pour les Contrôles OL --- */
+
+/* Conteneur général de tous les contrôles (Zoom, Plein écran, Attribution) */
+.ol-control {
+    /* Retirer le positionnement par défaut pour un meilleur contrôle */
+    position: absolute; 
+    
+    /* Positionnement dans le coin supérieur droit, sous vos propres widgets */
+    right: 15px; 
+    top: 70px; /* Espace sous la barre de navigation (70px) */
+    
+    margin: 0 !important;
+    padding: 0;
+    
+    /* Le z-index pour s'assurer qu'ils sont cliquables au-dessus de la carte */
+    z-index: 5; 
+}
+
+/* --- 2. Style des Boutons de Zoom et de Plein Écran --- */
+
+/* Ciblage du conteneur du bloc Zoom */
+.ol-zoom {
+    margin-bottom: 10px; /* Espace entre le bloc zoom et le plein écran */
+    display: flex;
+    flex-direction: column;
+    /* On utilise l'alignement pour placer ce bloc dans le conteneur .ol-control */
+}
+
+/* Conteneur du bloc Plein Écran */
+.ol-full-screen {
+    /* Le plein écran sera juste en dessous du zoom */
+    margin-top: 5px; 
+}
+
+
+/* Ciblage des boutons individuels (+, -, Plein Écran) */
+.ol-zoom-in,
+.ol-zoom-out,
+.ol-full-screen-btn {
+    /* Style de base des boutons (identique à votre design de widget) */
+    display: block;
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    color: #333;
+    font-size: 1.2rem;
+    line-height: 40px; /* Centrage vertical du texte/symbole */
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-family: inherit;
+    padding: 0;
+}
+
+.ol-zoom-in:hover,
+.ol-zoom-out:hover,
+.ol-full-screen-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* Ombre pour le bloc Zoom pour l'effet flottant */
+.ol-zoom {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 4px; /* Coins arrondis pour le bloc entier */
+    overflow: hidden; /* Important pour que l'arrondi s'applique aux enfants */
+}
+
+/* Séparation entre les boutons Zoom In et Zoom Out */
+.ol-zoom-in {
+    border-radius: 0; /* Pas d'arrondi ici, géré par le conteneur .ol-zoom */
+    margin-bottom: 0;
+    border-bottom: 1px solid #eee; /* Ligne de séparation */
+}
+
+.ol-zoom-out {
+    border-radius: 0;
+    margin-top: 0;
+}
+
+/* Style du bouton Plein Écran séparé */
+.ol-full-screen {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.ol-full-screen-btn {
+    border-radius: 4px; /* Coins arrondis pour le bouton Plein Écran */
+    margin: 0;
+}
+
+
+/* --- 3. Style de l'Échelle et de l'Attribution --- */
+
+/* Attribution (mention des sources, OSM) - Mieux en bas à gauche */
+.ol-attribution {
+    position: absolute;
+    bottom: 5px;
+    left: 10px;
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+}
+
+/* Échelle (Scale Line) */
+.ol-scale-line {
+    position: absolute;
+    bottom: 5px;
+    left: 140px; /* Décalé de l'attribution */
+    z-index: 5;
+}
+.ol-scale-line-inner {
+    border: 1px solid #555;
+    border-top: none;
+    color: #333;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 1px 4px;
+    font-size: 0.75rem;
+    line-height: 1.2;
+}

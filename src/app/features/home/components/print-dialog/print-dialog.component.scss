@@ -1,0 +1,21 @@
+::ng-deep {
+  .custom-compact {
+    // Supprime la ligne de soulignement Material
+    .mdc-line-ripple { display: none !important; }
+    
+    // Supprime l'espace réservé pour les erreurs (subscript-wrapper)
+    .mat-mdc-form-field-subscript-wrapper { display: none !important; }
+    
+    // Réduit la hauteur interne
+    .mat-mdc-text-field-wrapper {
+      padding: 0 !important;
+      background-color: transparent !important;
+    }
+  }
+
+  // Supprime le padding par défaut du conteneur de dialogue Material
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    padding: 20px !important;
+    border-radius: 16px !important;
+  }
+}

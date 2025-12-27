@@ -1,0 +1,89 @@
+<div class="min-h-screen bg-slate-50/30 py-12 px-4">
+  <div class="max-w-3xl mx-auto">
+    
+    <header class="mb-10">
+      <h1 class="text-3xl font-black text-slate-900 tracking-tight">Paramètres du compte</h1>
+      <p class="text-slate-500 mt-2">Gérez vos informations personnelles et la sécurité de votre accès au GéoPortail.</p>
+    </header>
+
+    <div class="space-y-6">
+      
+      <section class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+          <h2 class="font-bold text-slate-800 flex items-center gap-2">
+            <mat-icon class="text-amber-500">person</mat-icon>
+            Informations personnelles
+          </h2>
+        </div>
+        <div class="p-6">
+          <form [formGroup]="settingsForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <label class="text-xs font-bold text-slate-400 uppercase ml-1">Nom complet</label>
+              <input type="text" formControlName="nom" class="input-settings" placeholder="Ex: Mouhamadou Diamanka">
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-bold text-slate-400 uppercase ml-1">Adresse Email</label>
+              <input type="email" formControlName="email" class="input-settings" placeholder="nom@exemple.com">
+            </div>
+            <div class="md:col-span-2 pt-2">
+              <button (click)="saveInfo()" class="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all">
+                Enregistrer les modifications
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+          <h2 class="font-bold text-slate-800 flex items-center gap-2">
+            <mat-icon class="text-amber-500">lock</mat-icon>
+            Sécurité du compte
+          </h2>
+        </div>
+        <div class="p-6 space-y-4">
+          <div class="max-w-md space-y-4">
+            <div>
+              <label class="text-xs font-bold text-slate-400 uppercase ml-1">Ancien mot de passe</label>
+              <input type="password" placeholder="••••••••" class="input-settings">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-400 uppercase ml-1">Nouveau mot de passe</label>
+              <input type="password" placeholder="Minimum 8 caractères" class="input-settings">
+            </div>
+            <button class="px-6 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all">
+              Mettre à jour le mot de passe
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-2xl border border-red-100 overflow-hidden shadow-sm">
+        <div class="p-6 border-b border-red-50 bg-red-50/30">
+          <h2 class="font-bold text-red-600 flex items-center gap-2">
+            <mat-icon>report_problem</mat-icon>
+            Zone de danger
+          </h2>
+        </div>
+        <div class="p-6">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="max-w-md">
+              <h3 class="font-bold text-slate-900">Supprimer mon compte</h3>
+              <p class="text-sm text-slate-500 mt-1">
+                Vous ne souhaitez plus utiliser nos services ? Vous pouvez supprimer votre compte ici. 
+                <span class="text-red-500 font-medium">Cette action est irréversible.</span> 
+                Toutes les informations liées à ce compte (analyses, favoris) seront supprimées définitivement.
+              </p>
+            </div>
+            <button (click)="confirmDelete()" class="px-6 py-3 bg-red-50 text-red-600 border border-red-200 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">
+              Supprimer définitivement
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<p-confirmDialog></p-confirmDialog>

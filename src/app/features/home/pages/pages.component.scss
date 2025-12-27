@@ -1,0 +1,22 @@
+::ng-deep .custom-profile-menu {
+  border-radius: 12px !important;
+  margin-top: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid #f1f5f9;
+
+  .mat-mdc-menu-item {
+    .mat-icon {
+      margin-right: 12px;
+      font-size: 20px;
+    }
+    
+    &:hover {
+      background-color: #fffbeb !important; // amber-50
+      color: #d97706 !important; // amber-600
+      
+      .mat-icon {
+        color: #d97706 !important;
+      }
+    }
+  }
+}

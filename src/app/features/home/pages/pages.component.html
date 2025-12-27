@@ -1,0 +1,59 @@
+<div class="container w-full max-w-none">
+<header class="h-16 px-6 bg-white flex items-center justify-between border-b border-slate-100 sticky top-0 z-[1000]">
+  
+  <div class="flex items-center gap-2 cursor-pointer" routerLink="/">
+    <img src="/logo.png" class="w-12 h-auto" alt="Logo">
+    <h5 class="text-xl font-black text-slate-900 tracking-tighter">UNO<span class="text-amber-500 font-light">FIVE</span></h5>
+  </div>
+
+  <div class="hidden lg:flex flex-1 max-w-sm mx-8">
+    <div class="relative w-full group">
+      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-sm">search</mat-icon>
+      <input type="text" placeholder="Rechercher..." 
+             class="w-full pl-10 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-sm text-xs focus:ring-2 focus:ring-amber-500 outline-none transition-all">
+    </div>
+  </div>
+
+  <div class="flex items-center gap-6">
+    <nav class="hidden xl:flex items-center gap-5">
+      <a *ngFor="let link of [{r:'', t:'Accueil'}, {r:'map', t:'Cartes'}, {r:'api', t:'API Docs'}]"
+         [routerLink]="link.r" routerLinkActive="text-amber-600"
+         class="text-[13px] font-bold text-slate-600 hover:text-amber-500 transition-colors uppercase tracking-tight">{{link.t}}</a>
+    </nav>
+
+    <div class="h-5 w-px bg-slate-200"></div>
+
+    <div *ngIf="isLoggedIn; else notLoggedIn" class="flex items-center">
+      <button [matMenuTriggerFor]="m" class="flex items-center gap-2 p-1 hover:bg-slate-50 rounded-full transition-colors">
+        <div class="w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs font-black shadow-sm">{{ mesinitial }}</div>
+        <mat-icon class="text-slate-400 !text-lg">expand_more</mat-icon>
+      </button>
+
+      <mat-menu #m="matMenu" xPosition="before" class="rounded-xl shadow-xl border border-slate-100">
+        <div class="px-4 py-3 border-b border-slate-50">
+          <p class="text-[9px] font-black text-amber-500 uppercase tracking-widest">{{ userInfo?.isAdmin ? 'Admin' : 'User' }}</p>
+          <p class="text-sm font-bold text-slate-900 truncate">{{ userInfo.nom }}</p>
+        </div>
+        <button mat-menu-item *ngIf="userInfo?.isAdmin" routerLink="/admin" class="text-xs font-medium">
+          <mat-icon class="!text-sm">dashboard</mat-icon>Tableau de bord
+        </button>
+        <button mat-menu-item *ngIf="!userInfo?.isAdmin" class="text-xs font-medium">
+          <mat-icon class="!text-sm">star</mat-icon>Favoris
+        </button>
+        <button mat-menu-item (click)="logout()" class="text-xs font-medium text-red-500">
+          <mat-icon class="text-red-500 !text-sm">logout</mat-icon>Déconnexion
+        </button>
+      </mat-menu>
+    </div>
+
+    <ng-template #notLoggedIn>
+      <button (click)="register()" class="px-5 py-2 bg-slate-900 text-white text-xs cursor-pointer font-black hover:bg-amber-500 transition-all shadow-md shadow-slate-200">
+        Connexion
+      </button>
+    </ng-template>
+  </div>
+</header>
+  <div>
+    <router-outlet></router-outlet>
+  </div>
+</div>

@@ -1,0 +1,160 @@
+<div class="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-slate-100">
+  
+  <button (click)="sidebarVisible = true" 
+          class="absolute top-4 left-4 z-[1000] p-3 bg-white border border-slate-200 rounded-xl shadow-xl hover:bg-slate-50 transition-all">
+    <mat-icon class="text-slate-700">settings_input_component</mat-icon>
+  </button>
+
+  <p-drawer [(visible)]="sidebarVisible" styleClass="w-80 border-r border-slate-200">
+    <ng-template pTemplate="header">
+      <span class="font-black text-slate-900 uppercase">Configuration SIG</span>
+    </ng-template>
+
+    <div class="py-4 space-y-8">
+      <section>
+        <h3 class="text-xs font-bold text-slate-400 uppercase mb-4 px-2 tracking-widest">Moteur de rendu</h3>
+        <div class="flex p-1 bg-slate-100 rounded-xl">
+          <button (click)="switchEngine('leaflet')" 
+                  [ngClass]="{'bg-white shadow-sm text-slate-900': engine === 'leaflet', 'text-slate-500': engine !== 'leaflet'}"
+                  class="flex-1 py-2 text-xs font-black rounded-lg transition-all">LEAFLET</button>
+          <button (click)="switchEngine('openlayers')" 
+                  [ngClass]="{'bg-white shadow-sm text-slate-900': engine === 'openlayers', 'text-slate-500': engine !== 'openlayers'}"
+                  class="flex-1 py-2 text-xs font-black rounded-lg transition-all">OPENLAYERS</button>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-2 px-2 italic">
+          * Le changement de moteur réinitialise la vue actuelle.
+        </p>
+      </section>
+
+      <section>
+        <h3 class="text-xs font-bold text-slate-400 uppercase mb-4 px-2 tracking-widest">Fonds de carte</h3>
+        <div class="grid grid-cols-2 gap-3 px-1">
+          <div *ngFor="let base of basemaps" 
+               (click)="setBasemap(base.id)"
+               class="group cursor-pointer relative rounded-xl overflow-hidden border-2 transition-all"
+               [ngClass]="currentBasemap === base.id ? 'border-amber-400 shadow-md' : 'border-slate-100'">
+            <img [src]="base.img" class="h-16 w-full object-cover grayscale group-hover:grayscale-0 transition-all">
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent"></div>
+            <p class="text-[10px] text-center py-1 font-black uppercase text-slate-700 bg-white">{{base.label}}</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="text-xs font-bold text-slate-400 uppercase mb-4 px-2 tracking-widest">Données Thématiques</h3>
+        <div class="space-y-1">
+          <div *ngFor="let layer of thematicLayers" 
+               class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors">
+            <mat-checkbox [(ngModel)]="layer.active" (change)="updateLayers()"></mat-checkbox>
+            <span class="text-sm font-bold text-slate-700">{{layer.name}}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </p-drawer>
+
+  <div id="map" class="h-full w-full z-0"></div>
+
+</div>
+
+<!-- <div class="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-slate-100">
+  
+  <div class="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
+    <button (click)="sidebarVisible = true" 
+            class="p-3 bg-white border border-slate-200 rounded-xl shadow-xl hover:bg-slate-50 transition-all">
+      <mat-icon class="text-slate-700">menu_open</mat-icon>
+    </button>
+  </div>
+
+  <p-drawer [(visible)]="sidebarVisible" position="right" styleClass="w-80 p-0 border-l border-slate-200">
+    <div class="flex items-center justify-between p-4 bg-slate-900 text-white">
+      <span class="font-black uppercase tracking-tighter">Menu SIG</span>
+      <button (click)="sidebarVisible = false" class="text-white/70 hover:text-white">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="overflow-y-auto h-full pb-20">
+      
+      <div class="border-b border-slate-100">
+        <div class="p-4 bg-slate-50 flex items-center justify-between cursor-pointer group" (click)="toggleSection('tools')">
+          <span class="text-sm font-black text-slate-800 uppercase">Outils principaux</span>
+          <mat-icon class="text-slate-400 group-hover:text-slate-600">expand_more</mat-icon>
+        </div>
+        <div class="p-2 space-y-1" *ngIf="activeSection === 'tools'">
+          <button (click)="toggleMeasure()" class="sidebar-item">
+            <mat-icon class="text-amber-500">straighten</mat-icon>
+            <span>Mesurer une distance</span>
+          </button>
+          <button class="sidebar-item">
+            <mat-icon class="text-blue-500">edit_location</mat-icon>
+            <span>Annoter la carte</span>
+          </button>
+          <button class="sidebar-item">
+            <mat-icon class="text-emerald-500">location_searching</mat-icon>
+            <span>Afficher des coordonnées</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="border-b border-slate-100">
+        <div class="p-4 bg-slate-50 flex items-center justify-between cursor-pointer" (click)="toggleSection('basemaps')">
+          <span class="text-sm font-black text-slate-800 uppercase">Fonds de carte</span>
+          <mat-icon class="text-slate-400">map</mat-icon>
+        </div>
+        <div class="p-4" *ngIf="activeSection === 'basemaps'">
+          <div class="grid grid-cols-2 gap-3">
+            <div *ngFor="let base of basemaps" 
+                 (click)="setBasemap(base.id)"
+                 class="group cursor-pointer relative rounded-xl overflow-hidden border-2 transition-all"
+                 [ngClass]="currentBasemap === base.id ? 'border-amber-400 shadow-md' : 'border-slate-100'">
+              <img [src]="base.img" class="h-16 w-full object-cover grayscale group-hover:grayscale-0 transition-all">
+              <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent"></div>
+              <p class="text-[10px] text-center py-1 font-black uppercase text-slate-700 bg-white">{{base.label}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-b border-slate-100">
+        <div class="p-4 bg-slate-50 flex items-center justify-between cursor-pointer" (click)="toggleSection('layers')">
+          <span class="text-sm font-black text-slate-800 uppercase">Couches & Données</span>
+          <mat-icon class="text-slate-400">layers</mat-icon>
+        </div>
+        <div class="p-4 space-y-4" *ngIf="activeSection === 'layers'">
+          <div class="flex p-1 bg-slate-200 rounded-lg">
+            <button (click)="switchEngine('leaflet')" [ngClass]="{'bg-white shadow text-slate-900': engine === 'leaflet'}" class="flex-1 py-1 text-[10px] font-bold rounded-md">LEAFLET</button>
+            <button (click)="switchEngine('openlayers')" [ngClass]="{'bg-white shadow text-slate-900': engine === 'openlayers'}" class="flex-1 py-1 text-[10px] font-bold rounded-md">OPENLAYERS</button>
+          </div>
+          <div *ngFor="let layer of thematicLayers" class="flex items-center gap-3">
+            <mat-checkbox [(ngModel)]="layer.active" (change)="updateLayers()"></mat-checkbox>
+            <span class="text-sm font-medium text-slate-600">{{layer.name}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-b border-slate-100">
+        <div class="p-4 bg-slate-50 flex items-center justify-between cursor-pointer" (click)="toggleSection('legend')">
+          <span class="text-sm font-black text-slate-800 uppercase">Légende</span>
+          <mat-icon class="text-slate-400">info</mat-icon>
+        </div>
+        <div class="p-4" *ngIf="activeSection === 'legend'">
+          <div class="space-y-2">
+            <div class="flex items-center gap-3">
+              <span class="w-4 h-4 rounded bg-red-500"></span>
+              <span class="text-xs text-slate-600">Risque d'inondation élevé</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="w-4 h-4 rounded bg-amber-400"></span>
+              <span class="text-xs text-slate-600">Zone de surveillance</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </p-drawer>
+
+  <div id="map" class="h-full w-full z-0"></div>
+
+</div> -->

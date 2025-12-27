@@ -1,0 +1,41 @@
+<div class="p-1">
+  <h2 mat-dialog-title class="!m-0 !p-0 !text-slate-900 !font-black !text-[11px] uppercase tracking-tighter flex items-center gap-2">
+    <mat-icon class="!text-amber-500 !text-lg">print</mat-icon> Configuration du rapport
+  </h2>
+
+  <mat-dialog-content class="!m-0 !p-0 flex flex-col gap-3 mt-4 overflow-visible">
+    <p class="text-[10px] text-slate-400 font-medium italic mb-1">Personnalisez l'export PDF.</p>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-[9px] font-black uppercase text-slate-400 ml-1">Titre du rapport</label>
+      <input [(ngModel)]="data.title" placeholder="Ex: Inondations Sénégal"
+             class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500 outline-none transition-all">
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-[9px] font-black uppercase text-slate-400 ml-1">Observations</label>
+      <textarea [(ngModel)]="data.description" rows="2" placeholder="Analyse des données..."
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-amber-500 outline-none resize-none transition-all"></textarea>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="!p-0 !min-h-0 mt-8 flex justify-end gap-2">
+    <button mat-dialog-close [disabled]="isPrinting" 
+            class="px-3 py-2 cursor-pointer text-[10px] font-black uppercase text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-30">
+      Annuler
+    </button>
+    
+    <button (click)="handlePrint()" [disabled]="isPrinting"
+            class="relative cursor-pointer min-w-[140px] bg-slate-900 text-white rounded-md text-[10px] font-black uppercase px-6 py-2.5 hover:bg-amber-500 transition-all shadow-md active:scale-95 disabled:bg-slate-700 disabled:cursor-not-allowed">
+      
+      <span [class.opacity-0]="isPrinting">Confirmer et Imprimer</span>
+
+      <div *ngIf="isPrinting" class="absolute inset-0 flex items-center justify-center">
+        <svg class="animate-spin h-5 w-5 text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+    </button>
+  </mat-dialog-actions>
+</div>

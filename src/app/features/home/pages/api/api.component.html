@@ -1,0 +1,336 @@
+<div class="min-h-screen bg-slate-50 font-sans">
+  <section class="bg-slate-900 pt-20 pb-16 px-8 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto relative z-10">
+      <span class="text-amber-500 text-[10px] font-black uppercase tracking-[0.3em]">Documentation
+        Technique</span>
+      <h1 class="text-4xl font-black text-white mt-4 mb-4">API UNOFIVE <span
+          class="text-slate-500 font-light">v1.0</span></h1>
+      <p class="text-slate-400 max-w-2xl text-sm font-medium">Base URL: <code
+          class="bg-slate-800 px-2 py-1 rounded text-amber-400">/api</code></p>
+    </div>
+  </section>
+
+  <main class="max-w-7xl mx-auto px-8 py-12 grid lg:grid-cols-12 gap-12">
+    <aside class="lg:col-span-3">
+      <nav class="sticky top-24 space-y-6">
+        <div *ngFor="let section of ['Auth', 'Disasters', 'Countries']">
+          <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">{{section}}</h3>
+          <ul class="space-y-2">
+            <li *ngFor="let item of menu[section]"
+              class="text-[11px] font-bold text-slate-600 hover:text-amber-600 cursor-pointer transition-colors">
+              {{item}}
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <div class="lg:col-span-9 space-y-24">
+      <section id="user-services">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="h-8 w-1 bg-indigo-500"></div>
+          <h2 class="text-2xl font-black tracking-tight">Services Utilisateurs</h2>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8 mb-12">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-black rounded">POST</span>
+              <code class="text-sm font-bold">/users/login</code>
+            </div>
+            <p class="text-slate-600 text-sm mb-4">Authentification de l'utilisateur et génération du token **JWT** pour
+              l'accès aux routes protégées.</p>
+
+            <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Body Parameters</h4>
+            <div class="space-y-2">
+              <div class="flex justify-between text-[11px] py-1 border-b border-slate-100">
+                <span class="font-mono text-indigo-600">email</span>
+                <span class="text-slate-500 italic">string (required)</span>
+              </div>
+              <div class="flex justify-between text-[11px] py-1 border-b border-slate-100">
+                <span class="font-mono text-indigo-600">password</span>
+                <span class="text-slate-500 italic">string (required)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 rounded-2xl p-5 shadow-xl">
+            <span class="text-[9px] font-bold text-slate-500 uppercase block mb-3">Auth Success Response</span>
+            <pre class="text-blue-300 font-mono text-[10px] leading-tight">
+{{ loginResponse | json }}
+      </pre>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8 mb-12 opacity-80 group">
+          <div class="relative">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-black rounded">PUT</span>
+              <code class="text-sm font-bold">/users/profile</code>
+            </div>
+            <p class="text-slate-600 text-sm mb-4">Mise à jour des informations de compte et des préférences
+              géographiques.</p>
+
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest">In Development</span>
+              <div class="h-px flex-1 bg-slate-100"></div>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/50 rounded-2xl p-5 border border-dashed border-slate-700">
+            <span class="text-[9px] font-bold text-slate-500 uppercase block mb-3">Profile Data (Draft)</span>
+            <pre class="text-slate-500 font-mono text-[10px] leading-tight italic">
+{{ userProfile | json }}
+      </pre>
+          </div>
+        </div>
+
+        <div class="p-6 bg-indigo-50 rounded-2xl border border-indigo-100">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 bg-indigo-200 text-indigo-800 text-[10px] font-black rounded">AUTH</span>
+              <code class="text-sm font-bold text-indigo-900 tracking-tight">Middleware: authMiddleware</code>
+              <mat-icon class="text-indigo-600 !text-sm">security</mat-icon>
+            </div>
+            <span class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Authentication
+              Required</span>
+          </div>
+          <p class="text-indigo-800/70 text-xs font-medium mt-2">La plupart des services "Smart" nécessitent l'envoi du
+            token dans le header Authorization.</p>
+        </div>
+      </section>
+      <section>
+        <div class="flex items-center gap-3 mb-6">
+          <div class="h-8 w-1 bg-amber-500"></div>
+          <h2 class="text-2xl font-black tracking-tight">Gestion des Catastrophes</h2>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8 mb-12">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-black rounded">GET</span>
+              <code class="text-sm font-bold">/disasters/stats</code>
+            </div>
+            <p class="text-slate-600 text-sm mb-4">Récupère les statistiques agrégées formatées en
+              **GeoJSON** pour la carte.</p>
+
+            <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Query
+              Parameters</h4>
+            <div class="space-y-2">
+              <div class="flex justify-between text-[11px] py-1 border-b border-slate-100">
+                <span class="font-mono text-amber-600">year</span>
+                <span class="text-slate-500 italic">number (ex: 2024)</span>
+              </div>
+              <div class="flex justify-between text-[11px] py-1 border-b border-slate-100">
+                <span class="font-mono text-amber-600">type</span>
+                <span class="text-slate-500 italic">string (ex: Flood)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 rounded-2xl p-5 shadow-xl">
+            <span class="text-[9px] font-bold text-slate-500 uppercase block mb-3">GeoJSON Response</span>
+
+            <pre class="text-blue-300 font-mono text-[10px] leading-tight">
+  {{ jsonExample | json }}
+</pre>
+          </div>
+        </div>
+
+        <div class="p-6 bg-amber-50 rounded-2xl border border-amber-100 mb-12">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="px-2 py-0.5 bg-amber-200 text-amber-800 text-[10px] font-black rounded">POST</span>
+            <code class="text-sm font-bold text-amber-900">/disasters/import</code>
+            <mat-icon class="text-amber-600 !text-sm">lock</mat-icon>
+          </div>
+          <p class="text-amber-800/70 text-xs font-medium">Importation massive via fichier JSON.</p>
+          <span class="text-[10px] font-black text-amber-600 uppercase tracking-widest">Admin
+            Only</span>
+        </div>
+         <div class="grid lg:grid-cols-2 gap-8 mb-12">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-black rounded">GET</span>
+              <code class="text-sm font-bold text-slate-700">/disasters/details</code>
+            </div>
+            <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+              Récupère un package complet de statistiques pour un pays spécifique via son identifiant unique (**FID**).
+              Cette route agrège les données de mortalité, les impacts économiques et les tendances historiques.
+            </p>
+
+            <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Query Parameters</h4>
+            <div class="space-y-2">
+              <div class="flex justify-between text-[11px] py-1 border-b border-slate-100">
+                <span class="font-mono text-amber-600">fid</span>
+                <span class="text-slate-500 italic">number (Required)</span>
+              </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <div class="flex items-center gap-2 mb-2 text-slate-500">
+                <mat-icon class="!text-sm">info</mat-icon>
+                <span class="text-[10px] font-bold uppercase">Usage UI</span>
+              </div>
+              <p class="text-[11px] text-slate-500 italic">Principalement utilisé pour alimenter le Drawer latéral lors
+                d'un clic sur la carte OpenLayers.</p>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 rounded-2xl p-5 shadow-xl border border-slate-800">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[9px] font-bold text-slate-500 uppercase">Analysis Response</span>
+              <span class="flex h-2 w-2 rounded-full bg-green-500"></span>
+            </div>
+
+            <pre class="text-blue-300 font-mono text-[10px] leading-tight overflow-x-auto">
+{{stat | json}}
+      </pre>
+          </div>
+        </div>
+
+        <div class="p-4 bg-indigo-50/50 rounded-2xl border border-dashed border-indigo-200">
+          <div class="flex items-center gap-2">
+            <mat-icon class="text-indigo-600 !text-sm">bolt</mat-icon>
+            <span class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Performance Note</span>
+            <p class="text-indigo-800/60 text-[10px] font-medium ml-4">Agrégation en temps réel via TypeORM
+              QueryBuilder.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- <section>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="h-8 w-1 bg-slate-900"></div>
+                    <h2 class="text-2xl font-black tracking-tight">Territoires</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl">
+                        <div class="flex items-center gap-4">
+                            <span class="text-[10px] font-black text-slate-400">GET</span>
+                            <span class="text-sm font-bold">/countries</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 uppercase">Liste tous les pays</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl">
+                        <div class="flex items-center gap-4">
+                            <span class="text-[10px] font-black text-slate-400">GET</span>
+                            <span class="text-sm font-bold">/countries/:id</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 uppercase">Détails d'un pays</span>
+                    </div>
+                </div>
+            </section> -->
+      <section>
+        <div class="flex items-center gap-3 mb-6">
+          <div class="h-8 w-1 bg-slate-900"></div>
+          <h2 class="text-2xl font-black tracking-tight text-slate-900">Territoires & GeoJSON</h2>
+        </div>
+
+        <div class="space-y-4">
+          <div
+            class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-colors">
+            <div class="flex items-center gap-4">
+              <span class="text-[10px] font-black text-slate-400 w-8">GET</span>
+              <code class="text-sm font-bold text-slate-700">/countries</code>
+            </div>
+            <span class="text-[10px] text-slate-400 uppercase font-bold">Liste tous les pays</span>
+          </div>
+
+          <div
+            class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-colors">
+            <div class="flex items-center gap-4">
+              <span class="text-[10px] font-black text-slate-400 w-8">GET</span>
+              <code class="text-sm font-bold text-slate-700">/countries/:id</code>
+            </div>
+            <span class="text-[10px] text-slate-400 uppercase font-bold">Détails d'un pays</span>
+          </div>
+
+          <div class="p-6 bg-amber-50 rounded-2xl border border-amber-100 mt-6 group">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 bg-amber-200 text-amber-800 text-[10px] font-black rounded">POST</span>
+                <code class="text-sm font-bold text-amber-900">/countries/upload</code>
+                <mat-icon class="text-amber-600 !text-sm">lock</mat-icon>
+              </div>
+              <span class="text-[10px] font-black text-amber-600 uppercase tracking-widest">Admin
+                Only</span>
+            </div>
+
+            <p class="text-amber-900/70 text-xs font-medium mb-4 leading-relaxed">
+              Permet de téléverser un fichier **GeoJSON** pour définir les frontières d'un pays.
+              Le fichier est traité via <code class="bg-amber-100 px-1 rounded">multer</code> et
+              enregistré en base de données.
+            </p>
+
+            <div class="bg-slate-900 rounded-xl p-4 border border-slate-800">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[9px] font-bold text-slate-500 uppercase">Request Body
+                  (Form-Data)</span>
+              </div>
+              <pre class="text-amber-400 font-mono text-[10px] leading-tight">
+file: (geojson file)
+        </pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+    
+
+      <section id="smart-services" class="mt-12">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="h-8 w-1 bg-amber-500"></div>
+          <h2 class="text-2xl font-black tracking-tight">Fonctionnalités intelligentes</h2>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+
+          <div class="relative p-6 bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden group">
+            <div
+              class="absolute -right-4 -top-4 w-24 h-24 bg-amber-50 rounded-full transition-transform group-hover:scale-150">
+            </div>
+            <div class="relative z-10">
+              <div class="flex items-center justify-between mb-4">
+                <mat-icon class="text-amber-500">star</mat-icon>
+                <span class="px-2 py-0.5 bg-slate-900 text-white text-[8px] font-black uppercase rounded">Auth
+                  Required</span>
+              </div>
+              <h3 class="text-lg font-black mb-2">Mes Cartes Favorites</h3>
+              <p class="text-xs text-slate-500 mb-4 leading-relaxed">Sauvegardez vos filtres et zones géographiques
+                personnalisées pour un accès rapide.</p>
+              <div class="flex items-center gap-2">
+                <span class="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded">GET</span>
+                <code class="text-[10px] text-slate-400">/api/users/favorites</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative p-6 bg-slate-900 rounded-3xl shadow-xl overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent"></div>
+            <div class="relative z-10">
+              <div class="flex items-center justify-between mb-4">
+                <mat-icon class="text-amber-500">smart_toy</mat-icon>
+                <span class="px-2 py-0.5 bg-amber-500 text-slate-900 text-[8px] font-black uppercase rounded">AI
+                  Engine</span>
+              </div>
+              <h3 class="text-lg font-black text-white mb-2">Assistant IA (Chatbot)</h3>
+              <p class="text-xs text-slate-400 mb-4 leading-relaxed">Posez des questions en langage naturel sur les
+                risques climatiques de la région.</p>
+              <div class="flex items-center gap-2">
+                <span class="px-1.5 py-0.5 bg-slate-800 text-amber-500 text-[9px] font-bold rounded">WS</span>
+                <code class="text-[10px] text-slate-500 italic font-mono">Real-time connection...</code>
+              </div>
+            </div>
+            <div class="absolute bottom-0 right-0 p-2">
+              <span class="text-[8px] font-black text-slate-600 uppercase tracking-widest">Available Q3 2025</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  </main>
+</div>

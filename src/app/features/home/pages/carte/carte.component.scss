@@ -1,0 +1,215 @@
+@reference "tailwindcss";
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+:host ::ng-deep .p-drawer {
+    width: 450px !important; /* Augmente la largeur */
+}
+
+
+.map-legend {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 12px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 110px; /* Très étroit */
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.legend-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 4px;
+}
+
+.legend-header span {
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #475569;
+  letter-spacing: 0.5px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.legend-item.separator {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.color-box {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+}
+/* Supprimer les soulignements et marges internes de Material */
+::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
+::ng-deep .mat-mdc-text-field-wrapper {
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+
+.mat-mdc-select {
+  font-size: 12px !important;
+}
+
+mat-icon {
+  width: 16px !important;
+  height: 16px !important;
+  font-size: 16px !important;
+}
+
+::ng-deep .mat-mdc-option {
+  min-height: 32px !important;
+  font-size: 12px !important;
+}
+::ng-deep .ol-scale-line {
+  background: rgba(255, 255, 255, 0.7) !important;
+  border-radius: 4px !important;
+  bottom: 40px !important;
+  left: 20px !important;
+  padding: 4px !important;
+  position: absolute !important;
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+::ng-deep .ol-scale-line-inner {
+  border: 1px solid #333 !important;
+  border-top: none !important;
+  color: #333 !important;
+  font-size: 11px !important;
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: bold;
+}
+
+@media print {
+  /* Configuration de la page */
+  @page {
+    size: landscape;
+    margin: 1cm;
+  }
+* {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  /* Conteneur principal */
+  .relative.h-\[calc\(100vh-64px\)\] {
+    height: 100vh !important;
+    width: 100vw !important;
+    background: white !important;
+  }
+
+  /* Header en haut */
+  #print-header {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Carte au milieu */
+  #map {
+    display: block !important;
+    position: absolute !important;
+    top: 80px; /* Après le header */
+    height: 65vh !important;
+    width: 100% !important;
+    border: 1px solid #f1f5f9;
+  }
+
+  /* Footer en bas */
+  #print-footer {
+    display: block !important;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    visibility: visible !important;
+  }
+
+  #print-footer * {
+    visibility: visible !important;
+  }
+
+  /* Légende positionnée stratégiquement */
+  .map-legend {
+    display: block !important;
+    position: absolute !important;
+  top: 35px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 12px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 110px; /* Très étroit */
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* Cacher le footer à l'écran */
+#print-footer.hidden {
+  display: none;
+}
+/* Bouton individuel (Print) */
+.map-btn {
+  @apply p-1.5 bg-white border border-slate-200 rounded-lg shadow-md 
+         hover:bg-slate-50 transition-all text-slate-600 flex items-center justify-center;
+}
+
+/* Boutons empilés (Navigation) */
+.map-btn-flat {
+  @apply p-1.5 hover:bg-slate-50 transition-all text-slate-600 flex items-center justify-center;
+}
+
+/* Taille réduite des icônes Material */
+.map-btn mat-icon, 
+.map-btn-flat mat-icon {
+  width: 18px !important;
+  height: 18px !important;
+  font-size: 18px !important;
+}
+
+/* Supprimer les effets de focus bleus par défaut des navigateurs */
+button:focus {
+  outline: none;
+}

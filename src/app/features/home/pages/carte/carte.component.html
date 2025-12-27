@@ -1,0 +1,211 @@
+<div class="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-slate-100">
+  <!-- <div class="absolute top-4 right-4 z-[1000] flex bg-white p-1 rounded-xl shadow-2xl border border-slate-200">
+  <input [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" 
+         placeholder="Chercher un pays..." 
+         class="px-4 py-2 text-sm border-none focus:ring-0 w-48">
+  <button (click)="onSearch()" class="p-2 bg-amber-400 text-white rounded-lg hover:bg-amber-500 transition-colors">
+    <mat-icon>search</mat-icon>
+  </button>
+</div> -->
+  <div [class.hidden]="isPrinting"
+    class="absolute top-20 left-4 z-[1000] bg-white/90 backdrop-blur-md p-3 rounded-xl shadow-xl border border-slate-200 w-56">
+    <div class="flex items-center gap-2 mb-3">
+      <mat-icon class="text-slate-400 !text-sm w-4 h-4">filter_alt</mat-icon>
+      <span class="font-bold text-slate-500 uppercase text-[10px] tracking-tight">Filtres</span>
+    </div>
+
+    <div class="space-y-3">
+      <div class="flex flex-col gap-1">
+        <div
+          class="flex items-center gap-2 bg-slate-50 rounded-lg px-2 border border-slate-100 focus-within:border-amber-400">
+          <mat-icon class="text-slate-400 !text-xs">calendar_today</mat-icon>
+          <mat-select [(ngModel)]="selectedYear" (selectionChange)="applyFilters()"
+            class="text-xs font-bold text-slate-700 py-1.5">
+            <mat-option *ngFor="let year of years" [value]="year" class="!text-xs">{{ year }}</mat-option>
+          </mat-select>
+        </div>
+
+        <div
+          class="flex items-center gap-2 bg-slate-50 rounded-lg px-2 border border-slate-100 focus-within:border-amber-400">
+          <mat-icon class="text-slate-400 !text-xs">warning_amber</mat-icon>
+          <mat-select [(ngModel)]="selectedDisaster" (selectionChange)="applyFilters()"
+            class="text-xs font-bold text-slate-700 py-1.5">
+            <mat-option value="all" class="!text-xs">Tous les risques</mat-option>
+            <mat-option *ngFor="let type of disasterTypes" [value]="type.id" class="!text-xs">
+              {{ type.label }}
+            </mat-option>
+          </mat-select>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-2 pt-2 border-t border-slate-100 flex items-center gap-2">
+      <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+      <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">EM-DAT Data</span>
+    </div>
+  </div>
+  <div [class.hidden]="isPrinting" class="absolute bottom-6 right-4 z-[1000] flex flex-col gap-1.5">
+    <button (click)="openPrintDialog()" title="Imprimer" class="map-btn cursor-pointer mb-1">
+      <mat-icon>print</mat-icon>
+    </button>
+
+    <div
+      class="flex flex-col bg-white/90 backdrop-blur-md rounded-lg shadow-lg border border-slate-200 overflow-hidden">
+      <button (click)="toggleFullscreen()" title="Plein écran"
+        class="map-btn-flat border-b cursor-pointer border-slate-100">
+        <mat-icon>{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+      </button>
+
+      <button (click)="resetView()" title="Vue initiale" class="map-btn-flat border-b cursor-pointer border-slate-100">
+        <mat-icon>home</mat-icon>
+      </button>
+      <button (click)="zoomIn()" title="Zoom avant" class="map-btn-flat border-b cursor-pointer border-slate-100">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button (click)="zoomOut()" title="Zoom arrière" class="map-btn-flat cursor-pointer">
+        <mat-icon>remove</mat-icon>
+      </button>
+    </div>
+  </div>
+<p-drawer [(visible)]="statsVisible" position="right" styleClass="w-full md:w-[600px] shadow-xl border-l">
+  
+  <ng-template pTemplate="header">
+    <div class="flex items-center gap-3">
+    
+      <span class="font-bold text-slate-800 text-lg uppercase tracking-tight">{{selectedCountry?.name}}</span>
+    </div>
+  </ng-template>
+
+  <div class="py-4 space-y-6" *ngIf="selectedCountryStats as s">
+    
+    <div class="grid grid-cols-3 gap-4">
+      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Événements</p>
+        <p class="text-2xl font-black text-slate-800">{{s.overview.total_events}}</p>
+      </div>
+      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Risque Majeur</p>
+        <p class="text-sm font-bold text-indigo-600 truncate">{{s.overview.dominant_type}}</p>
+      </div>
+      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Fréquence</p>
+        <p class="text-sm font-bold text-indigo-600 truncate">{{s.overview.annual_frequency}}</p>
+      </div>
+    </div>
+
+    <section>
+      <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-1">Économie</h4>
+      <div class="p-5 bg-amber-500 rounded-2xl text-white shadow-sm">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-xs font-medium opacity-90">Pertes cumulées (USD)</span>
+          <mat-icon class="text-sm opacity-50">payments</mat-icon>
+        </div>
+        <p class="text-3xl font-black mb-3">${{s.overview.total_damage | number}}</p>
+        <div class="text-[10px] flex justify-between border-t border-white/20 pt-2">
+          <span class="opacity-80 uppercase">Indice CPI Moyen</span>
+          <span class="font-bold">{{s.overview.avg_cpi | number:'1.1-1'}}</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-1">Bilan Humain (depuis 2000)</h4>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-red-500"></div>
+            <span class="text-sm font-medium text-slate-600">Nombre de décès</span>
+          </div>
+          <span class="font-bold text-slate-900">{{s.overview.total_deaths | number}}</span>
+        </div>
+        <div class="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-amber-400"></div>
+            <span class="text-sm font-medium text-slate-600">Personnes affectées</span>
+          </div>
+          <span class="font-bold text-slate-900">{{s.vulnerability.total_affected | number}}</span>
+        </div>
+        <div class="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-slate-400"></div>
+            <span class="text-sm font-medium text-slate-600">Personnes sans-abris</span>
+          </div>
+          <span class="font-bold text-slate-900">{{s.vulnerability.total_homeless | number}}</span>
+        </div>
+      </div>
+    </section>
+<section>
+  <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-1">Types des Catastrophes</h4>
+  
+  <div class="grid grid-cols-2 gap-3">
+    <div *ngFor="let item of s.vulnerability.subgroups" 
+         class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:border-indigo-200 transition-all group">
+      
+      <div class="p-2 rounded-lg" 
+           [ngClass]="{
+             'bg-blue-50 text-blue-600': item.subgroup === 'Hydrological',
+             'bg-emerald-50 text-emerald-600': item.subgroup === 'Biological',
+             'bg-amber-50 text-amber-600': item.subgroup === 'Meteorological',
+             'bg-orange-50 text-orange-600': item.subgroup === 'Climatological'
+           }">
+        <mat-icon class="text-sm">
+          {{ item.subgroup === 'Hydrological' ? 'water_drop' : 
+             item.subgroup === 'Biological' ? 'coronavirus' : 
+             item.subgroup === 'Meteorological' ? 'cloud' : 'wb_sunny' }}
+        </mat-icon>
+      </div>
+
+      <div class="flex flex-col">
+        <span class="text-[10px] font-black text-slate-400 uppercase leading-none">{{item.subgroup}}</span>
+        <span class="text-lg font-black text-slate-800 tracking-tighter">{{item.count}}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+  </div>
+</p-drawer>
+  <div id="print-header" [class.hidden]="!isPrinting">
+    <div class="flex justify-between items-end border-b-2 border-amber-500 pb-2">
+      <div>
+        <h1 class="text-2xl font-black text-slate-900">{{ reportTitle }}</h1>
+        <p class="text-sm text-slate-600">{{ reportDescription }}</p>
+      </div>
+      <div class="text-right">
+        <span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Rapport Cartographique</span>
+      </div>
+    </div>
+  </div>
+  <div id="map" class="h-full w-full z-0"></div>
+  <div id="print-footer" [class.hidden]="!isPrinting">
+    <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+      <div class="flex items-center">
+        <img src="/logo.png" width="40" alt="Logo">
+        <h5 class="text-lg font-black text-slate-900 tracking-tight ml-2">
+          UNO<span class="text-amber-500 font-light">FIVE</span>
+        </h5>
+      </div>
+      <div class="text-[10px] text-slate-400 font-medium">
+        Généré le {{ today | date:'dd/MM/yyyy HH:mm' }} | Données EM-DAT
+      </div>
+    </div>
+  </div>
+  <div class="map-legend">
+    <div class="legend-header">
+      <mat-icon class="!text-[12px] text-amber-600">person_off</mat-icon>
+      <span>Décès</span>
+    </div>
+
+    <div class="legend-body">
+      <div class="legend-item" *ngFor="let item of legendItems">
+        <span class="color-box" [style.background-color]="item.color"></span>
+        <span class="label">{{ item.label }}</span>
+      </div>
+
+      <div class="legend-item separator">
+        <span class="color-box bg-amber-500/20 border border-amber-400/50"></span>
+        <span class="label">0 / N.A</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,112 @@
+<div class="flex h-screen w-full bg-white overflow-hidden">
+    
+    <div class="w-full lg:w-[35%] p-6 sm:p-10 flex flex-col justify-center">
+        <div class="text-center mb-6">
+            <img src="/logo.png" width="50" alt="UnoFive" class="mx-auto mb-2">
+            <h5 class="text-xl font-black text-slate-900 tracking-tight leading-none">UNO<span class="text-amber-500 font-light">FIVE</span></h5>
+            <p class="text-slate-500 text-xs mt-1">Espace géospatial</p>
+        </div>
+
+        <p-toast />
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-3">
+            
+            <mat-form-field appearance="outline" class="w-full unofive-field custom-compact">
+                <mat-label>Adresse e-mail</mat-label>
+                <input matInput type="email" formControlName="email" id="email" placeholder="nom@unofive.com">
+                <mat-icon matSuffix class="text-slate-400 scale-75">email</mat-icon>
+                <mat-error *ngIf="email.errors" class="text-[10px]">
+                    <span *ngIf="email?.errors?.['required']">L'adresse e-mail est obligatoire.</span>
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full unofive-field custom-compact">
+                <mat-label>Mot de passe</mat-label>
+                <input matInput type="password" formControlName="password" id="password" placeholder="••••••••">
+                <mat-icon matSuffix class="text-slate-400 scale-75">lock</mat-icon>
+                <mat-error *ngIf="password.errors" class="text-[10px]">
+                    <span *ngIf="password.errors?.['required']">Le mot de passe obligatoire</span>
+                </mat-error>
+            </mat-form-field>
+
+            <div class="flex items-center justify-between text-[11px] mb-2">
+                <div class="flex items-center">
+                    <input type="checkbox" class="w-3.5 h-3.5 text-amber-500 border-slate-300 rounded focus:ring-amber-500" id="remember">
+                    <label class="ml-2 text-slate-600 cursor-pointer" for="remember">Rester connecté</label>
+                </div>
+                <a href="#" class="text-amber-600 font-bold hover:underline">Mot de passe oublié ?</a>
+            </div>
+
+            <button type="submit" 
+                    [disabled]="form.invalid || isLoading"
+                    class="w-full bg-amber-400 cursor-pointer hover:bg-amber-500 disabled:bg-slate-200 disabled:text-slate-400 text-slate-900 py-2.5 rounded-lg font-bold transition-all text-sm shadow-sm active:scale-[0.98]">
+                <span *ngIf="!isLoading">Se connecter</span>
+                <span *ngIf="isLoading" class="flex items-center justify-center">
+                    <svg class="animate-spin h-4 w-4 text-slate-900" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </span>
+            </button>
+
+            <div class="relative flex items-center py-2">
+                <div class="flex-grow border-t border-slate-100"></div>
+                <span class="flex-shrink mx-3 text-slate-400 text-[10px] uppercase font-bold tracking-widest">ou</span>
+                <div class="flex-grow border-t border-slate-100"></div>
+            </div>
+
+            <button type="button" class="w-full flex items-center  cursor-pointer justify-center gap-2 border border-slate-200 py-2 rounded-lg hover:bg-slate-50 transition-colors text-slate-700 text-xs font-medium">
+                <img src="https://img.icons8.com/color/18/google-logo.png" alt="google">
+                Google
+            </button>
+
+            <p class="text-center text-slate-500 text-[11px] mt-4">
+                Vous n'avez pas de compte ? 
+                <span (click)="register()" class="text-amber-600 font-bold cursor-pointer hover:text-amber-700 ml-1">
+                    Créer un compte
+                </span>
+            </p>
+        </form>
+    </div>
+
+    <div class="hidden lg:flex lg:w-[65%] bg-slate-900 relative items-center justify-center p-16 text-white overflow-hidden">
+    
+      <div id="map" class="absolute inset-0 w-full h-full z-0"></div>
+
+
+    <div class="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-900/60 to-amber-500/20 z-10"></div>
+    
+    <div class="absolute inset-0 z-15 opacity-10" 
+         style="background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 50px 50px;">
+    </div>
+
+    <div class="relative z-20 max-w-xl text-left">
+        <div class="mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-bold tracking-widest uppercase">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+            </span>
+            Catastrophes naturelles
+        </div>
+
+        <h2 class="text-5xl font-black mb-6 leading-tight">
+            Analyser pour <span class="text-amber-400">Protéger</span>.
+        </h2>
+        
+        <p class="text-slate-200 text-lg font-light leading-relaxed mb-8">
+            <span class="font-light text-white">Uno<span class="text-amber-500 font-light">FIVE</span></span> centralise les données pour l'analyse des catastrophes naturelles sur l'ensemble du corridor ouest-africain.
+        </p>
+        
+        <div class="grid grid-cols-3 gap-6 border-t border-white/10 pt-8">
+            <div>
+                <div class="text-2xl font-bold text-amber-400">WESTAF</div>
+                <div class="text-[10px] text-slate-400 uppercase tracking-wider">Zone de couverture</div>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-white">EM-DAT</div>
+                <div class="text-[10px] text-slate-400 uppercase tracking-wider">Données</div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
