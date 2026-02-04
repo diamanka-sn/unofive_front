@@ -1,0 +1,138 @@
+<p-toast></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<div class="p-4 max-w-6xl mx-auto space-y-6">
+  <header>
+    <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight">GEO <span class="text-emerald-500">Spatial</span> Manager</h2>
+    <p class="text-slate-500 text-sm font-medium italic">Importation de limites des pays (.geojson)</p>
+  </header>
+
+  <div class="max-w-4xl mx-auto mt-6">
+    <div class="flex flex-col md:flex-row gap-4 items-stretch w-full">
+
+      <div
+        class="md:w-5/12 border-2 border-dashed rounded-xl p-3 text-center transition-all cursor-pointer group bg-white flex flex-col justify-center min-h-[120px]"
+        [ngClass]="isDragging ? 'border-emerald-500 bg-emerald-50 shadow-inner' : 'border-slate-200 hover:border-emerald-400'"
+        [class.opacity-50]="isProcessing" 
+        (click)="fileInput.click()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)">
+        
+        <input #fileInput type="file" (change)="onFileChange($event)" hidden accept=".geojson,application/json">
+
+        <div *ngIf="!fileName" class="space-y-1">
+          <mat-icon [ngClass]="{'text-emerald-500 animate-pulse-custom': isDragging, 'text-emerald-400': !isDragging}" 
+                    class="!text-2xl h-7 w-7 mx-auto transition-colors duration-300">
+            public
+          </mat-icon>
+          <p class="font-bold text-slate-700 text-xs">Charger GeoJSON</p>
+          <p class="text-[8px] text-slate-400 uppercase tracking-widest font-bold font-mono">JSON / GEOJSON</p>
+        </div>
+
+        <div *ngIf="fileName" class="flex flex-col items-center justify-center gap-2 animate-in fade-in zoom-in duration-300">
+          <div class="flex items-center gap-2 font-bold text-slate-700 text-[11px]">
+            <mat-icon class="text-emerald-500 !text-base h-4 w-4">map</mat-icon>
+            <span class="truncate max-w-[120px]">{{ fileName }}</span>
+          </div>
+          <button (click)="$event.stopPropagation(); resetETL()"
+            class="text-red-400 hover:text-red-600 cursor-pointer flex items-center gap-1 transition-all bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full text-[8px] uppercase font-black">
+            <mat-icon class="!text-xs h-3 w-3">delete</mat-icon>
+            Effacer
+          </button>
+        </div>
+      </div>
+
+      <section class="md:w-7/12 bg-[#1e1e1e] rounded-xl border border-slate-800 shadow-lg overflow-hidden font-mono flex flex-col">
+        <div class="p-1.5 bg-[#2d2d2d] flex items-center justify-between border-b border-white/5 shrink-0">
+          <div class="flex gap-1 ml-1">
+            <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+            <span class="text-[7px] text-slate-500 uppercase font-black ml-2 tracking-widest italic">UNOFIVE Geo-Engine</span>
+          </div>
+        </div>
+
+        <div #terminalScroll class="p-2.5 h-28 overflow-y-auto text-[9px] space-y-0.5 scrollbar-thin scrollbar-thumb-slate-700 flex-grow leading-relaxed">
+          <div *ngFor="let log of logs" class="flex gap-2 animate-in fade-in slide-in-from-left-1">
+            <span class="text-slate-600 shrink-0 text-[7px]">{{ log.time }}</span>
+            <span [ngClass]="{
+              'text-emerald-400': log.type === 'success',
+              'text-amber-400 font-bold': log.type === 'info',
+              'text-red-400 font-bold': log.type === 'error',
+              'text-sky-400': log.type === 'process'
+            }">
+              {{ log.message }}
+            </span>
+          </div>
+          <div *ngIf="isProcessing" class="text-white animate-pulse text-[8px] inline-block ml-1">█</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div *ngIf="progress > 0" class="max-w-4xl mx-auto p-4 bg-white rounded-xl shadow-sm border border-slate-100 animate-in slide-in-from-top duration-500">
+    <div class="flex justify-between text-[10px] font-black uppercase text-slate-400 mb-2">
+      <span>Indexation Géospatiale</span>
+      <span>{{ progress }}%</span>
+    </div>
+    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+      <div class="h-full bg-emerald-500 transition-all duration-300" [style.width.%]="progress"></div>
+    </div>
+  </div>
+
+  <!-- <section *ngIf="previewData?.length" class="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm animate-in fade-in duration-700">
+    <div class="p-4 border-b bg-slate-50/50 flex justify-between items-center">
+      <div>
+        <h3 class="font-bold text-slate-900 text-sm">Features détectées</h3>
+        <span class="text-[10px] text-slate-500 uppercase font-black tracking-tighter">{{previewData.length}} polygones détectés</span>
+      </div>
+      <button (click)="uploadToDatabase()" [disabled]="isProcessing"
+        class="flex items-center gap-2 px-5 py-2 bg-slate-900 cursor-pointer text-white text-xs font-bold hover:bg-emerald-600 transition disabled:bg-slate-200 rounded-lg">
+        <mat-icon *ngIf="!isProcessing" class="!text-lg">map</mat-icon>
+        <mat-spinner *ngIf="isProcessing" diameter="16"></mat-spinner>
+        {{ isProcessing ? 'Injection...' : 'Synchroniser PostGIS' }}
+      </button>
+    </div>
+
+    <div class="overflow-x-auto max-h-60 text-xs font-mono">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50 text-slate-400 uppercase text-[9px] font-black sticky top-0">
+          <tr class="divide-x divide-slate-100">
+            <th class="p-3">ISO_3</th>
+            <th class="p-3">Nom Local</th>
+            <th class="p-3">Type Géo</th>
+            <th class="p-3">Points/Coordonnées</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50">
+          <tr *ngFor="let feat of previewData | slice:0:14" class="hover:bg-slate-50 transition text-[10px]">
+            <td class="p-3 font-bold text-emerald-600">{{ feat.properties?.ADM0_A3_MA || 'N/A' }}</td>
+            <td class="p-3">{{ feat.properties?.NAME || 'Inconnu' }}</td>
+            <td class="p-3"><span class="bg-slate-100 px-1.5 py-0.5 rounded">{{ feat.geometry?.type }}</span></td>
+            <td class="p-3 text-slate-400 truncate max-w-xs">
+              {{ feat.geometry?.coordinates[0][0] | json }}...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section> -->
+
+  <section *ngIf="previewData?.length" class="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm animate-in fade-in duration-700 mt-6">
+  <div class="p-4 border-b bg-slate-50/50 flex justify-between items-center">
+    <div>
+      <h3 class="font-bold text-slate-900 text-sm ">Rendu Cartographique</h3>
+      <span class="text-[10px] text-emerald-600 uppercase font-black tracking-tighter">Visualisation en temps réel</span>
+    </div>
+    
+    <button (click)="uploadToDatabase()" [disabled]="isProcessing"
+      class="flex items-center gap-2 px-5 py-2 bg-slate-900 cursor-pointer text-white text-xs font-bold hover:bg-emerald-600 transition rounded-lg">
+      <mat-icon class="!text-lg">cloud_upload</mat-icon>
+      Synchroniser {{ previewData.length }} entités
+    </button>
+  </div>
+
+  <div id="map" class="h-80 w-full bg-slate-100"></div>
+</section>
+</div>

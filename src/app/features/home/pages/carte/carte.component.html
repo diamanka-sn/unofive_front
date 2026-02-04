@@ -78,7 +78,7 @@
 
   <div class="py-4 space-y-6" *ngIf="selectedCountryStats as s">
     
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-2 gap-4">
       <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
         <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Événements</p>
         <p class="text-2xl font-black text-slate-800">{{s.overview.total_events}}</p>
@@ -89,7 +89,11 @@
       </div>
       <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
         <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Fréquence</p>
-        <p class="text-sm font-bold text-indigo-600 truncate">{{s.overview.annual_frequency}}</p>
+        <p class="text-sm font-bold text-red-600 truncate">{{s.overview.annual_frequency}}</p>
+      </div>
+      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Durée moyenne</p>
+        <p class="text-sm font-bold text-amber-600 truncate">{{s.overview.avg_duration}}</p>
       </div>
     </div>
 
@@ -162,7 +166,14 @@
     </div>
   </div>
 </section>
-
+<div *ngIf="selectedCountryStats" class="stats-content">
+  <div class="chart-box mt-4 p-4 bg-slate-800 rounded-xl">
+    <h3 class="text-sm font-semibold mb-2 text-white">Évolution Historique</h3>
+    <div style="position: relative; height:250px; width:100%">
+      <canvas #statsChart></canvas>
+    </div>
+  </div>
+</div>
   </div>
 </p-drawer>
   <div id="print-header" [class.hidden]="!isPrinting">

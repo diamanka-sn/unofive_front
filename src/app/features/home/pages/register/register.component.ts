@@ -51,8 +51,8 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
         maxZoom: 19,
       }
     ).addTo(this.map);
-    // Liste des capitales de la CEDEAO
     const capitalesCEDEAO = [
+      { name: 'Nouakchott, Mauritanie', coords: [18.0848, -15.9785] },
       { name: 'Dakar, Sénégal', coords: [14.7167, -17.4677] },
       { name: 'Praia, Cap-Vert', coords: [14.9177, -23.5092] },
       { name: 'Banjul, Gambie', coords: [13.4549, -16.579] },
@@ -60,7 +60,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       { name: 'Conakry, Guinée', coords: [9.5092, -13.7122] },
       { name: 'Freetown, Sierra Leone', coords: [8.4844, -13.2344] },
       { name: 'Monrovia, Liberia', coords: [6.3005, -10.7969] },
-      { name: 'Abidjan, Côte d’Ivoire', coords: [5.36, -4.0083] }, // Capitale éco
+      { name: 'Abidjan, Côte d’Ivoire', coords: [5.36, -4.0083] }, 
       { name: 'Accra, Ghana', coords: [5.6037, -0.187] },
       { name: 'Lomé, Togo', coords: [6.1375, 1.2123] },
       { name: 'Porto-Novo, Bénin', coords: [6.4969, 2.6289] },
@@ -70,16 +70,14 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       { name: 'Niamey, Niger', coords: [13.5116, 2.1254] },
     ];
 
-    // Options communes pour les cercles UnoFive
     const circleOptions = {
-      color: '#f59e0b', // Ambre UnoFive
+      color: '#f59e0b', 
       fillColor: '#f59e0b',
       fillOpacity: 0.3,
       weight: 2,
-      radius: 35000, // Rayon en mètres (ajustable)
+      radius: 35000, 
     };
 
-    // Ajout de chaque capitale sur la carte
     capitalesCEDEAO.forEach((ville) => {
       L.circle(ville.coords as L.LatLngExpression, circleOptions)
         .addTo(this.map)
@@ -89,7 +87,6 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
           className: 'uno-tooltip',
         });
     });
-    // Force le rafraîchissement de la taille pour éviter les bugs d'affichage
     setTimeout(() => {
       this.map.invalidateSize();
     }, 400);
@@ -161,8 +158,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   register() {
-    console.log('Redirection vers inscription...');
-    // this.router.navigate(['/register']);
+    this.router.navigate(['/login']);
   }
 
   ngOnDestroy(): void {

@@ -1,0 +1,166 @@
+<p-toast></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<div class="p-4 max-w-6xl mx-auto space-y-6">
+  <header>
+    <h2 class="text-xl font-black text-slate-900">ETL <span class="text-amber-500">Manager</span></h2>
+    <p class="text-slate-500 text-sm font-medium">Importation & Transformation EM-DAT</p>
+  </header>
+<div class="max-w-4xl mx-auto mt-6">
+  
+  <div class="flex flex-col md:flex-row gap-4 items-stretch w-full">
+
+   <div
+    class="md:w-5/12 border-2 border-dashed rounded-xl p-3 text-center transition-all cursor-pointer group bg-white flex flex-col justify-center min-h-[120px]"
+    [ngClass]="isDragging ? 'border-emerald-500 bg-emerald-50 shadow-inner' : 'border-slate-200 hover:border-amber-400'"
+    [class.opacity-50]="isProcessing" 
+    (click)="fileInput.click()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)">
+    
+    <input #fileInput type="file" (change)="onFileChange($event)" hidden accept=".xlsx,.xls">
+
+    <div *ngIf="!fileName" class="space-y-1">
+      <mat-icon [ngClass]="{'text-emerald-500 animate-pulse-custom': isDragging, 'text-amber-500': !isDragging}" 
+                class="!text-2xl h-7 w-7 mx-auto transition-colors duration-300">
+        file_upload
+      </mat-icon>
+      
+      <p class="font-bold text-slate-700 text-xs transition-colors" [class.text-emerald-700]="isDragging">
+        {{ isDragging ? 'Déposez ici' : 'Charger EM-DAT' }}
+      </p>
+      <p class="text-[8px] text-slate-400 uppercase tracking-widest font-bold">Excel (.xlsx)</p>
+    </div>
+
+    <div *ngIf="fileName" class="flex flex-col items-center justify-center gap-2 animate-in fade-in zoom-in duration-300">
+        <div class="flex items-left gap-2 font-bold text-slate-700 text-[11px]">
+          <mat-icon class="text-emerald-500 !text-base h-4 w-4">check_circle</mat-icon>
+          <span class="truncate max-w-[120px]">{{ fileName }}</span>
+        </div>
+        <button (click)="$event.stopPropagation(); resetETL()"
+          class="text-red-400 hover:text-red-600 cursor-pointer flex items-center gap-1 transition-all bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full text-[8px] uppercase font-black">
+          <mat-icon class="!text-xs h-3 w-3">delete</mat-icon>
+        </button>
+      </div>
+</div>
+    <section class="md:w-7/12 bg-[#1e1e1e] rounded-xl border border-slate-800 shadow-lg overflow-hidden font-mono flex flex-col">
+      <div class="p-1.5 bg-[#2d2d2d] flex items-center justify-between border-b border-white/5 shrink-0">
+        <div class="flex gap-1 ml-1">
+          <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+          <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+          <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+          <span class="text-[7px] text-slate-500 uppercase font-black ml-2 tracking-widest">UNO FIVE ETL</span>
+        </div>
+        <div *ngIf="isProcessing" class="mr-2 flex items-center gap-1">
+          <span class="text-[7px] text-emerald-500 animate-pulse font-bold uppercase">Processing...</span>
+        </div>
+      </div>
+
+      <div #terminalScroll
+        class="p-2.5 h-28 overflow-y-auto text-[9px] space-y-0.5 scrollbar-thin scrollbar-thumb-slate-700 flex-grow leading-relaxed">
+        <div *ngIf="logs.length === 0" class="text-slate-600 italic opacity-40">// En attente d'un fichier...</div>
+
+       <div *ngFor="let log of logs" class="mb-1 flex gap-4 animate-in fade-in slide-in-from-left-1">
+        <span class="text-slate-500 shrink-0">{{ log.time }}</span>
+        <span [ngClass]="{
+          'text-emerald-400': log.type === 'success',
+          'text-amber-400': log.type === 'info',
+          'text-red-400 font-bold': log.type === 'error',
+          'text-sky-400': log.type === 'process'
+        }">
+          <i *ngIf="log.type === 'process'" class="pi pi-spin pi-spinner mr-2"></i>
+          {{ log.message }}
+        </span>
+      </div>
+      <div *ngIf="isProcessing" class="text-white animate-pulse">_</div>
+      </div>
+    </section>
+
+  </div>
+</div>
+  
+  <div *ngIf="progress > 0" class="mb-6 p-4 bg-white rounded-xl shadow-sm border border-slate-100 animate-in slide-in-from-top duration-500">
+    <div class="flex justify-between text-[10px] font-black uppercase text-slate-400 mb-2">
+      <span>Progression de l'importation</span>
+      <span>{{ progress }}%</span>
+    </div>
+    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+      <div class="h-full bg-emerald-500 transition-all duration-300 shadow-[0_0_10px_rgba(16,185,129,0.4)]" [style.width.%]="progress"></div>
+    </div>
+  </div>
+  <section *ngIf="previewData?.length" class="bg-white rounded-xl border border-slate-100  overflow-hidden">
+    <div class="p-4 border-b bg-slate-50/50 flex justify-between items-center">
+      <div>
+        <h3 class="font-bold text-slate-900">Prévisualisation</h3>
+        <span class="text-[10px] text-slate-500 uppercase font-black tracking-tighter">{{previewData.length}} lignes
+          filtrées</span>
+      </div>
+      <button (click)="uploadToDatabase()" [disabled]="isProcessing"
+        class="flex items-center gap-2 px-5 py-2 bg-slate-900 cursor-pointer text-white font-bold hover:bg-amber-500 transition disabled:bg-slate-300">
+        <mat-icon *ngIf="!isProcessing" class="!text-lg">storage</mat-icon>
+        <mat-spinner *ngIf="isProcessing" diameter="18"></mat-spinner>
+        {{ isProcessing ? 'Traitement...' : 'Importer les données' }}
+      </button>
+    </div>
+
+    <div class="overflow-x-auto max-h-80 text-xs">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50 text-slate-400 uppercase text-[9px] font-black sticky top-0">
+          <tr class="divide-x divide-slate-100">
+            <th class="p-3">ISO</th>
+            <th class="p-3">DisNo</th>
+            <th class="p-3">FID</th>
+            <th class="p-3">Type</th>
+            <th class="p-3">Année</th>
+            <th class="p-3">Décès</th>
+            <th class="p-3">Dommages ($)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50">
+          <tr *ngFor="let row of previewData | slice:0:8" class="hover:bg-slate-50 transition">
+            <td class="p-3 font-bold">{{ row.iso }}</td>
+            <td class="p-3 font-bold">{{ row.disno }}</td>
+            <td class="p-3"><span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">{{ row.fid }}</span></td>
+            <td class="p-3 text-slate-500">{{ row.disaster_type }}</td>
+            <td class="p-3">{{ row.year }}</td>
+            <td class="p-3 text-red-500 font-bold">{{ row.deaths | number }}</td>
+            <td class="p-3 text-amber-600 font-bold">{{ row.damage_usd | currency:'USD':'symbol':'1.0-0' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="previewData.length > 8" class="p-2 text-center text-slate-400 text-[10px] italic bg-slate-50">
+        + {{ previewData.length - 8 }} autres entrées
+      </div>
+    </div>
+  </section>
+
+  <!-- <section class="mt-8 bg-[#1e1e1e] rounded-2xl border border-slate-800 shadow-2xl overflow-hidden font-mono">
+    <div class="p-3 bg-[#2d2d2d] flex items-center gap-2 border-b border-white/5">
+      <div class="flex gap-1.5 ml-2">
+        <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+        <div class="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
+        <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+      </div>
+      <span class="text-[10px] text-slate-400 uppercase font-black ml-4 tracking-widest">ETL Terminal Output</span>
+    </div>
+
+    <div #terminalScroll
+      class="p-4 h-48 overflow-y-auto text-[11px] space-y-1 scrollbar-thin scrollbar-thumb-slate-700">
+      <div *ngIf="logs.length === 0" class="text-slate-600 italic">// En attente d'un fichier...</div>
+
+     <div *ngFor="let log of logs" class="mb-1 flex gap-4 animate-in fade-in slide-in-from-left-1">
+        <span class="text-slate-500 shrink-0">{{ log.time }}</span>
+        <span [ngClass]="{
+          'text-emerald-400': log.type === 'success',
+          'text-amber-400': log.type === 'info',
+          'text-red-400 font-bold': log.type === 'error',
+          'text-sky-400': log.type === 'process'
+        }">
+          <i *ngIf="log.type === 'process'" class="pi pi-spin pi-spinner mr-2"></i>
+          {{ log.message }}
+        </span>
+      </div>
+      <div *ngIf="isProcessing" class="text-white animate-pulse">_</div>
+    </div>
+  </section> -->
+</div>

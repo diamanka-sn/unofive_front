@@ -5,9 +5,9 @@ import {
   AfterViewInit,
   HostListener,
   ChangeDetectorRef,
+  ViewChild, ElementRef,
 } from '@angular/core';
 
-// OpenLayers Imports
 import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
@@ -22,7 +22,8 @@ import { CountryService } from '@/app/core/services/country.service';
 import Feature from 'ol/Feature';
 import { MatDialog } from '@angular/material/dialog';
 import { PrintDialogComponent } from '../../components/print-dialog/print-dialog.component';
-
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-carte',
@@ -102,6 +103,9 @@ export class CarteComponent implements OnInit, AfterViewInit, OnDestroy {
       color: '#8e44ad',
     },
   ];
+
+  @ViewChild('statsChart') statsChart!: ElementRef;
+  private chartInstance: Chart | null = null;
   public legendItems = [
     { color: '#800026', label: '> 1000' },
     { color: '#BD0026', label: '501 - 1000' },
@@ -244,6 +248,7 @@ export class CarteComponent implements OnInit, AfterViewInit, OnDestroy {
               this.statsVisible = true;
               this.loadingStats = false;
               this.cdr.detectChanges();
+              setTimeout(() => this.initChart(), 0);
             },
             error: () => {
               this.loadingStats = false;
@@ -485,4 +490,74 @@ export class CarteComponent implements OnInit, AfterViewInit, OnDestroy {
   getTrendColor(current: number, average: number) {
     return current > average ? 'text-red-500' : 'text-emerald-500';
   }
+
+  initChart() {
+  if (!this.statsChart || !this.selectedCountryStats?.chart_data) return;
+
+  const data = this.selectedCountryStats.chart_data;
+  const years = data.map((d: any) => d.year);
+  const deaths = data.map((d: any) => d.annual_deaths);
+  const damages = data.map((d: any) => parseFloat(d.annual_damage));
+
+  if (this.chartInstance) {
+    this.chartInstance.destroy();
+  }
+
+  this.chartInstance = new Chart(this.statsChart.nativeElement, {
+    type: 'bar', 
+    data: {
+      labels: years,
+      datasets: [
+        {
+          
+          label: 'Décès',
+          data: deaths,
+          backgroundColor: '#ef4444', 
+          borderColor: '#b91c1c',
+          borderWidth: 1,
+          yAxisID: 'y',
+          barPercentage: 0.6, 
+        },
+        {
+          label: 'Dommages (USD)',
+          data: damages,
+          backgroundColor: '#f59e0b', 
+          borderColor: '#d97706',
+          borderWidth: 1,
+          yAxisID: 'y1',
+          barPercentage: 0.6,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#cbd5e1' } }
+      },
+      scales: {
+        x: { 
+          stacked: false, 
+          ticks: { color: '#94a3b8' }, 
+          grid: { display: false } 
+        },
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          ticks: { color: '#ef4444' },
+          title: { display: true, text: 'Décès', color: '#ef4444' }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          grid: { drawOnChartArea: false },
+          ticks: { color: '#f59e0b' },
+          title: { display: true, text: 'Dommages USD', color: '#f59e0b' }
+        }
+      }
+    }
+  });
+}
 }

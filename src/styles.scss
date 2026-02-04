@@ -1,10 +1,10 @@
 @use 'tailwindcss';
 
-// Custom Theming for Angular Material
-// For more information: https://material.angular.dev/guide/theming
+
 @use '@angular/material' as mat;
 @import "ol/ol.css";
 @import "leaflet/dist/leaflet.css";
+@import "primeicons/primeicons.css";
 html {
   @include mat.theme((
     color: (
@@ -15,15 +15,14 @@ html {
     typography: Roboto,
     density: 0,
   ));
-}/* You can add global styles to this file, and also import other style files */
+}
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .unofive-field.mat-focused {
   
-  // 1. La couleur du label (le texte qui remonte)
   .mat-mdc-floating-label mat-label {
-    color: #f59e0b !important; // Amber-500
+    color: #f59e0b !important; 
   }
 
   .mdc-notched-outline__leading,
@@ -39,7 +38,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 
 @media print {
-  /* 1. Cache le Header, la Nav, et les éléments d'interface globale */
   header, 
   nav, 
   footer,
@@ -49,13 +47,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     display: none !important;
   }
 
-  /* 2. Optimisation du canevas de la page */
   @page {
-    margin: 1cm; /* Marges standard pour imprimante */
+    margin: 1cm; 
     size: auto;
   }
 
-  /* 3. Nettoyage complet du parent et du background */
   body, html, .container {
     margin: 0 !important;
     padding: 0 !important;
@@ -63,10 +59,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     background: white !important;
     width: 100% !important;
     height: auto !important;
-    overflow: visible !important; /* Important pour ne pas couper le contenu */
+    overflow: visible !important; 
   }
 
-  /* 4. Masque les overlays (Dialogues, Menus, Drawers) */
   .p-drawer, 
   .mat-mdc-menu-panel, 
   .cdk-overlay-container,
@@ -74,7 +69,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     display: none !important;
   }
 
-  /* 5. Force les couleurs et images (pour les cartes Leaflet/Mapbox) */
   * {
     -webkit-print-color-adjust: exact !important; 
     print-color-adjust: exact !important;

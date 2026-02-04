@@ -28,6 +28,9 @@ export class CountryService extends AbstractService<any> {
     );
   }
 
+//   saveGeoJsonToDatabase(chunk: any[]): Observable<any> {
+//   return this['http'].post(`${this.apiUrl}/countries/sync`, chunk);
+// }
 
   getStats(year: number, type?: string): Observable<any> {
     let params = new HttpParams().set('year', year.toString());

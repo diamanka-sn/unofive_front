@@ -1,0 +1,80 @@
+<div class="flex flex-col h-screen overflow-hidden bg-slate-50">
+  <header class="h-16 px-6 bg-white flex items-center justify-between border-b border-slate-100 shrink-0 z-[1000]">
+    <div class="flex items-center gap-2 cursor-pointer" routerLink="/">
+      <img src="/logo.png" class="w-10 h-auto" alt="Logo">
+      <h5 class="text-xl font-black text-slate-900 tracking-tighter">UNO<span class="text-amber-500 font-light">FIVE</span></h5>
+    </div>
+
+    <div class="flex items-center gap-6">
+      <div *ngIf="isLoggedIn" class="flex items-center">
+         <button [matMenuTriggerFor]="m" class="flex items-center cursor-pointer gap-2 p-1 hover:bg-slate-50 rounded-full transition-colors">
+        <div class="w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs font-black shadow-sm">{{ mesinitial }}</div>
+        <mat-icon class="text-slate-400 !text-lg">expand_more</mat-icon>
+      </button>
+
+      <mat-menu #m="matMenu" xPosition="before" class="rounded-xl shadow-xl border border-slate-100">
+        <div class="px-4 py-3 border-b border-slate-50">
+          <p class="text-[9px] font-black text-amber-500 uppercase tracking-widest">{{ userInfo?.isAdmin ? 'Admin' : 'User' }}</p>
+          <p class="text-sm font-bold text-slate-900 truncate">{{ userInfo.nom }}</p>
+        </div>
+       
+        <button mat-menu-item (click)="logout()" class="text-xs font-medium text-red-500">
+          <mat-icon class="text-red-500 !text-sm">logout</mat-icon>Déconnexion
+        </button>
+      </mat-menu>
+         </div>
+    </div>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden">
+    <aside *ngIf="userInfo?.isAdmin" class="w-64 bg-white border-r border-slate-100 flex flex-col shrink-0">
+      <div class="p-6">
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Administration</p>
+        
+        <nav class="space-y-1">
+          <a routerLink="/admin" routerLinkActive="bg-amber-50 text-amber-600" 
+             class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all group">
+            <mat-icon class="!text-lg">dashboard</mat-icon>
+            Tableau de bord
+          </a>
+
+          <a routerLink="/admin/users" routerLinkActive="bg-amber-50 text-amber-600" 
+             class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+            <mat-icon class="!text-lg">people</mat-icon>
+            Utilisateurs
+          </a>
+
+          <a routerLink="/admin/disasters" routerLinkActive="bg-amber-50 text-amber-600" 
+             class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+            <mat-icon class="!text-lg">warning</mat-icon>
+            Catastrophes (EM-DAT)
+          </a>
+          <a routerLink="/admin/geo-data" routerLinkActive="bg-amber-50 text-amber-600" 
+             class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+            <mat-icon class="!text-lg">public</mat-icon>
+            GEO Data
+          </a>
+          <a routerLink="/admin/settings" routerLinkActive="bg-amber-50 text-amber-600" 
+             class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+            <mat-icon class="!text-lg">settings</mat-icon>
+            Configuration
+          </a>
+        </nav>
+      </div>
+
+      <div class="mt-auto p-6 border-t border-slate-50">
+        <div class="bg-slate-900 rounded-2xl p-4 text-white">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Statut Serveur</p>
+          <div class="flex items-center gap-2 mt-1">
+            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <p class="text-xs font-medium">API Connectée</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto relative bg-slate-50/50">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
