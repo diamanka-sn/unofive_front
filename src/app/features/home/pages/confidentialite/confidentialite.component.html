@@ -1,0 +1,268 @@
+<div class="min-h-screen bg-slate-50 text-slate-800">
+
+  <section class="bg-white border-b border-slate-200 pt-20 pb-10 px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-sm text-slate-500">Protection des données</p>
+      <h1 class="text-3xl font-semibold text-slate-900 mt-1">Politique de confidentialité</h1>
+      <p class="text-slate-600 mt-3 max-w-2xl leading-relaxed">
+        Cette page explique quelles informations UnoFive enregistre à votre sujet, pourquoi, et comment les contrôler.
+      </p>
+      <p class="text-sm text-slate-500 mt-4">Dernière mise à jour : {{ lastUpdate }}</p>
+    </div>
+  </section>
+
+  <main class="max-w-6xl mx-auto px-6 lg:px-8 py-10 grid lg:grid-cols-12 gap-10">
+
+    <!-- Sommaire -->
+    <aside class="hidden lg:block lg:col-span-3 min-w-0">
+      <nav class="lg:sticky lg:top-24 text-sm" aria-label="Sommaire">
+        <p class="font-medium text-slate-900 mb-2">Sur cette page</p>
+        <ul class="space-y-1.5">
+          <li *ngFor="let item of toc">
+            <button (click)="scrollTo(item.id)" class="text-left text-slate-600 hover:text-slate-900 cursor-pointer">{{ item.label }}</button>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="lg:col-span-9 max-w-3xl space-y-12 leading-relaxed min-w-0">
+
+      <!-- En bref -->
+      <section class="bg-white rounded-lg border border-slate-200 p-5">
+        <h2 class="text-base font-semibold text-slate-900 mb-3">En bref</h2>
+        <ul class="space-y-2.5 text-sm">
+          <li class="flex gap-3">
+            <mat-icon class="text-emerald-600 !text-xl !w-5 !h-5 shrink-0">check</mat-icon>
+            <span>Consulter la carte ne demande <strong>aucun compte</strong> et n'enregistre rien sur vous.</span>
+          </li>
+          <li class="flex gap-3">
+            <mat-icon class="text-emerald-600 !text-xl !w-5 !h-5 shrink-0">check</mat-icon>
+            <span>Avec un compte, nous gardons seulement votre <strong>nom</strong>, votre <strong>e-mail</strong> et votre mot de passe, chiffré de façon illisible.</span>
+          </li>
+          <li class="flex gap-3">
+            <mat-icon class="text-emerald-600 !text-xl !w-5 !h-5 shrink-0">check</mat-icon>
+            <span><strong>Pas de publicité, pas de pistage, pas de cookies.</strong> Vos données ne sont ni vendues ni partagées.</span>
+          </li>
+          <li class="flex gap-3">
+            <mat-icon class="text-emerald-600 !text-xl !w-5 !h-5 shrink-0">check</mat-icon>
+            <span>Vous pouvez <strong>supprimer votre compte</strong> vous-même, à tout moment, depuis <a routerLink="/profil" class="underline underline-offset-2 text-slate-900">Mon profil</a>.</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Données collectées -->
+      <section id="donnees" class="scroll-mt-24 space-y-4">
+        <h2 class="text-xl font-semibold text-slate-900">Données collectées</h2>
+        <p>Nous n'enregistrons que ce qui est nécessaire au fonctionnement de votre compte :</p>
+        <div class="bg-white rounded-lg border border-slate-200 overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-600">
+              <tr>
+                <th class="px-4 py-2.5 font-medium">Donnée</th>
+                <th class="px-4 py-2.5 font-medium">Quand</th>
+                <th class="px-4 py-2.5 font-medium">Pourquoi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="px-4 py-2.5 font-medium text-slate-900">Nom</td>
+                <td class="px-4 py-2.5 text-slate-600">Inscription</td>
+                <td class="px-4 py-2.5 text-slate-600">Vous identifier dans l'interface</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 font-medium text-slate-900">Adresse e-mail</td>
+                <td class="px-4 py-2.5 text-slate-600">Inscription</td>
+                <td class="px-4 py-2.5 text-slate-600">Vous connecter</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 font-medium text-slate-900">Mot de passe</td>
+                <td class="px-4 py-2.5 text-slate-600">Inscription</td>
+                <td class="px-4 py-2.5 text-slate-600">Vous connecter. Enregistré chiffré (bcrypt) : personne, pas même nous, ne peut le lire</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 font-medium text-slate-900">Date d'inscription</td>
+                <td class="px-4 py-2.5 text-slate-600">Inscription</td>
+                <td class="px-4 py-2.5 text-slate-600">Gestion des comptes</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 font-medium text-slate-900">Clé d'API</td>
+                <td class="px-4 py-2.5 text-slate-600">Si vous en créez une</td>
+                <td class="px-4 py-2.5 text-slate-600">Vérifier vos appels à l'API. Seule une empreinte est gardée, la clé elle-même n'est jamais stockée</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-slate-600">
+          Nous ne collectons <strong class="text-slate-900">ni</strong> votre position, <strong class="text-slate-900">ni</strong> l'historique de vos visites,
+          <strong class="text-slate-900">ni</strong> les recherches que vous faites sur la carte.
+        </p>
+        <p class="text-slate-600">
+          Les données sur les catastrophes viennent de la base publique EM-DAT. Ce sont des bilans par événement et par pays :
+          elles ne contiennent aucune information sur des personnes.
+        </p>
+      </section>
+
+      <!-- Utilisation -->
+      <section id="usage" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl font-semibold text-slate-900">Utilisation</h2>
+        <p>Vos données servent uniquement à :</p>
+        <ul class="list-disc pl-5 space-y-1.5 text-slate-700">
+          <li>vous connecter et garder votre session ouverte ;</li>
+          <li>vous donner accès à l'API avec votre clé ;</li>
+          <li>réserver l'administration de la plateforme aux comptes autorisés.</li>
+        </ul>
+        <p class="text-slate-600">Nous ne vous envoyons pas de lettre d'information et ne faisons aucune publicité.</p>
+      </section>
+
+      <!-- Stockage et sécurité -->
+      <section id="stockage" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl font-semibold text-slate-900">Stockage et sécurité</h2>
+        <ul class="list-disc pl-5 space-y-1.5 text-slate-700">
+          <li>Les comptes sont enregistrés dans notre base de données PostgreSQL.</li>
+          <li>Les mots de passe et les clés d'API ne sont jamais stockés en clair.</li>
+          <li>Votre session expire automatiquement au bout de 48 heures.</li>
+          <li>Seuls les administrateurs de la plateforme peuvent voir la liste des comptes (nom, e-mail, date d'inscription).</li>
+        </ul>
+      </section>
+
+      <!-- Navigateur -->
+      <section id="navigateur" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl font-semibold text-slate-900">Cookies et stockage local</h2>
+        <p>
+          UnoFive <strong>n'utilise pas de cookies</strong>. Quand vous êtes connecté, votre navigateur garde deux éléments
+          dans son stockage local (<code class="text-sm bg-slate-100 px-1.5 py-0.5 rounded">localStorage</code>) :
+        </p>
+        <ul class="list-disc pl-5 space-y-1.5 text-slate-700">
+          <li>votre jeton de connexion, pour ne pas avoir à vous reconnecter à chaque page ;</li>
+          <li>votre nom, votre e-mail et votre rôle, pour les afficher dans le menu.</li>
+        </ul>
+        <p class="text-slate-600">Ces éléments sont effacés quand vous vous déconnectez. Ils ne servent à aucun suivi.</p>
+      </section>
+
+      <!-- Services tiers -->
+      <section id="tiers" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl font-semibold text-slate-900">Services tiers</h2>
+        <p>
+          Pour afficher certaines pages, votre navigateur télécharge des fichiers chez d'autres services.
+          Comme pour tout site web, ces services reçoivent alors votre adresse IP. Nous ne leur transmettons aucune donnée de compte.
+        </p>
+        <div class="bg-white rounded-lg border border-slate-200 divide-y divide-slate-100 text-sm">
+          <div class="flex flex-col sm:flex-row sm:justify-between gap-1 px-4 py-2.5">
+            <span class="font-medium text-slate-900">OpenStreetMap</span>
+            <span class="text-slate-600">Fond de carte « Rues »</span>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:justify-between gap-1 px-4 py-2.5">
+            <span class="font-medium text-slate-900">Esri (ArcGIS Online)</span>
+            <span class="text-slate-600">Fonds de carte satellite et gris</span>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:justify-between gap-1 px-4 py-2.5">
+            <span class="font-medium text-slate-900">Google Fonts</span>
+            <span class="text-slate-600">Police de caractères et icônes</span>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:justify-between gap-1 px-4 py-2.5">
+            <span class="font-medium text-slate-900">flagcdn, icons8</span>
+            <span class="text-slate-600">Quelques images (drapeaux, pictogrammes)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Conservation -->
+      <section id="conservation" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl font-semibold text-slate-900">Durée de conservation</h2>
+        <p>
+          Votre compte est conservé tant que vous ne le supprimez pas. Quand vous le supprimez, votre nom, votre e-mail,
+          votre mot de passe et votre clé d'API sont <strong>effacés immédiatement et définitivement</strong>.
+        </p>
+      </section>
+
+      <!-- Droits -->
+      <section id="droits" class="scroll-mt-24 space-y-4">
+        <h2 class="text-xl font-semibold text-slate-900">Vos droits</h2>
+        <p>Vous gardez la main sur vos données. Voici comment agir :</p>
+        <div class="bg-white rounded-lg border border-slate-200 overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-600">
+              <tr>
+                <th class="px-4 py-2.5 font-medium">Vous voulez…</th>
+                <th class="px-4 py-2.5 font-medium">Comment faire</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="px-4 py-2.5 font-medium text-slate-900">Voir vos données</td>
+                <td class="px-4 py-2.5 text-slate-600">Ouvrez <a routerLink="/profil" class="underline underline-offset-2 text-slate-900">Mon profil</a> : tout ce que nous gardons sur vous y est affiché.</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 font-medium text-slate-900">Supprimer votre compte</td>
+                <td class="px-4 py-2.5 text-slate-600"><a routerLink="/profil" class="underline underline-offset-2 text-slate-900">Mon profil</a> → Zone de danger → Supprimer mon compte.</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 font-medium text-slate-900">Désactiver votre clé d'API</td>
+                <td class="px-4 py-2.5 text-slate-600"><a routerLink="/profil" class="underline underline-offset-2 text-slate-900">Mon profil</a> → Clé d'API → Révoquer.</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 font-medium text-slate-900">Corriger votre nom ou e-mail</td>
+                <td class="px-4 py-2.5 text-slate-600">Écrivez-nous (voir ci-dessous).</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 font-medium text-slate-900">Recevoir une copie de vos données</td>
+                <td class="px-4 py-2.5 text-slate-600">Écrivez-nous (voir ci-dessous).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section id="contact" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl font-semibold text-slate-900">Contact</h2>
+        <p>Pour toute question sur vos données, écrivez-nous. Nous répondons sous 30 jours au maximum.</p>
+        <a href="mailto:contact@unofive.com"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md text-sm font-medium hover:bg-slate-700 transition-colors">
+          <mat-icon class="!text-lg !w-5 !h-5">mail</mat-icon> contact&#64;unofive.com
+        </a>
+        <p class="text-sm text-slate-500 pt-4">
+          Si cette politique change, nous mettrons à jour la date en haut de cette page.
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="bg-slate-900 pt-12 pb-8">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8">
+      <div class="grid md:grid-cols-4 gap-10 mb-10">
+        <div class="md:col-span-2">
+          <div class="flex items-center mb-3">
+            <img src="/logo.png" width="36" class="brightness-0 invert" alt="Logo">
+            <span class="text-lg font-semibold text-white ml-2">UnoFive</span>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed max-w-xs">
+            Plateforme d'analyse des catastrophes en Afrique, de 2000 à 2026.
+          </p>
+        </div>
+        <div>
+          <p class="text-white text-sm font-medium mb-3">Plateforme</p>
+          <ul class="text-slate-400 text-sm space-y-2">
+            <li><a routerLink="/map" class="hover:text-white transition-colors">Carte interactive</a></li>
+            <li><a routerLink="/api" class="hover:text-white transition-colors">Documentation de l'API</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-white text-sm font-medium mb-3">Contact</p>
+          <ul class="text-slate-400 text-sm space-y-2">
+            <li class="flex items-center gap-2"><mat-icon class="!text-base !w-4 !h-4">mail</mat-icon> contact&#64;unofive.com</li>
+          </ul>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-slate-400">
+        <p>© 2025 UnoFive. Tous droits réservés.</p>
+        <div class="flex gap-6">
+          <a routerLink="/confidentialite" class="text-white">Confidentialité</a>
+          <a routerLink="/accessibilite" class="hover:text-white transition-colors">Accessibilité</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>

@@ -4,217 +4,138 @@
   <header class="relative pt-15 pb-15">
     <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-10 items-center">
       <div>
-        <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 text-amber-600 rounded-full mb-6 border border-amber-100">
-          <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-          </span>
-          <span class="text-[10px] font-black uppercase tracking-tighter">Live Analysis 2000 — 2025</span>
-        </div>
-        
-        <h1 class="text-5xl md:text-6xl font-black tracking-tighter leading-[0.9] mb-6">
-          DATA<span class="text-amber-500">GIS</span> <br>REDEFINED.
+        <h1 class="text-5xl md:text-6xl tracking-tighter leading-[0.9] mb-6">
+          Données <span class="text-amber-700">SIG</span>, <br>repensées.
         </h1>
         
         <p class="text-base text-slate-500 max-w-sm mb-8 font-medium">
-          Analyse des risques de catastrophes naturel en Afrique de l'Ouest. Une décennie de données EM-DAT transformée en intelligence actionnable.
+          Analyse des risques de catastrophes naturelles en Afrique. Une décennie de données EM-DAT transformée en intelligence actionnable.
         </p>
         
         <div class="flex gap-3">
-          <button routerLink="/map" class="px-6 py-3 cursor-pointer bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-amber-500 transition-all shadow-lg shadow-slate-200">
+          <a routerLink="/map" class="inline-block px-6 py-3 cursor-pointer bg-slate-900 text-white rounded-xl text-sm hover:bg-amber-500 transition-all shadow-lg shadow-slate-200">
             Démarrer
-          </button>
-          <button routerLink="/api" class="px-6 py-3 cursor-pointer bg-white border border-slate-200 rounded-xl font-bold text-sm hover:bg-slate-50">
-            API Docs
-          </button>
+          </a>
+          <a routerLink="/api" class="inline-block px-6 py-3 cursor-pointer bg-white border border-slate-200 rounded-xl text-sm hover:bg-slate-50">
+            Documentation API
+          </a>
         </div>
       </div>
 
       <div class="relative group">
         <div class="absolute inset-0 bg-gradient-to-tr from-amber-200 to-transparent rounded-[2rem] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
         <div class="relative bg-white p-2 rounded-[2rem] shadow-2xl border border-slate-100 overflow-hidden">
-          <img src="/carte.JPG" class="rounded-[1.5rem] w-full object-cover">
+          <img src="/carte.JPG" class="rounded-[1.5rem] w-full object-cover" alt="Aperçu de la carte interactive : pays d'Afrique colorés selon le nombre de décès">
         </div>
       </div>
     </div>
   </header>
 
-  <section class="max-w-7xl mx-auto px-6 py-12 border-t border-slate-100">
-    <div class="grid grid-cols-3 md:grid-cols-9 gap-4">
-      <div *ngFor="let r of risks" class="flex flex-col items-center gap-2 group cursor-help" [title]="r.label">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:scale-110" 
+  <section class="max-w-7xl mx-auto px-6 py-12 border-t border-slate-100" aria-label="Types de catastrophes couverts">
+    <ul class="grid grid-cols-3 md:grid-cols-9 gap-4">
+      <li *ngFor="let r of riskTypes" class="flex flex-col items-center gap-2 group">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:scale-110"
              [style.backgroundColor]="r.color + '15'" [style.color]="r.color">
-          <mat-icon class="!text-xl">{{r.icon}}</mat-icon>
+          <mat-icon class="!text-xl" aria-hidden="true">{{ r.icon }}</mat-icon>
         </div>
-        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{{r.label}}</span>
-      </div>
-    </div>
+        <span class="text-xs text-slate-600 text-center">{{ r.label }}</span>
+      </li>
+    </ul>
   </section>
 
-  <section class="bg-slate-900 mx-6 mb-6 rounded-[2.5rem] py-12">
-    <div class="max-w-7xl mx-auto px-8 grid grid-cols-2 md:grid-cols-4 gap-12">
-      <div class="border-l border-slate-800 pl-6">
-        <p class="text-3xl font-black text-white">25 <span class="text-amber-500 text-sm">ans</span></p>
-        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Historique</p>
+  <!-- Chiffres clés calculés par le serveur (GET /disasters/summary) -->
+  <section class="max-w-7xl mx-auto px-6 py-12" aria-labelledby="chiffres-titre">
+    <h2 id="chiffres-titre" class="text-3xl tracking-tighter text-slate-900">
+      La base en <span class="text-amber-700">chiffres</span>.
+    </h2>
+    <p class="text-slate-500 mt-2 mb-8">
+      Catastrophes naturelles et technologiques en Afrique, d'après EM-DAT (CRED / UCLouvain).
+    </p>
+
+    <dl class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-4 sm:p-6 border border-slate-100">
+        <dt class="text-sm text-slate-500">Catastrophes recensées</dt>
+        <dd class="text-2xl sm:text-3xl md:text-4xl tracking-tighter text-slate-900 mt-2 tabular-nums whitespace-nowrap">
+          {{ summary ? (summary.events | number) : '—' }}
+        </dd>
       </div>
-      <div class="border-l border-slate-800 pl-6">
-        <p class="text-3xl font-black text-white">20k+</p>
-        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Événements</p>
+      <div class="bg-white p-4 sm:p-6 border border-slate-100">
+        <dt class="text-sm text-slate-500">Décès enregistrés</dt>
+        <dd class="text-2xl sm:text-3xl md:text-4xl tracking-tighter text-slate-900 mt-2 tabular-nums whitespace-nowrap">
+          {{ summary ? (summary.deaths | number) : '—' }}
+        </dd>
       </div>
-      <div class="border-l border-slate-800 pl-6">
-        <p class="text-3xl font-black text-white">9</p>
-        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Risques Clés</p>
+      <div class="bg-white p-4 sm:p-6 border border-slate-100">
+        <dt class="text-sm text-slate-500">Pays touchés</dt>
+        <dd class="text-2xl sm:text-3xl md:text-4xl tracking-tighter text-slate-900 mt-2 tabular-nums whitespace-nowrap">
+          {{ summary ? summary.countries : '—' }}
+        </dd>
       </div>
-      <div class="border-l border-slate-800 pl-6">
-        <p class="text-3xl font-black text-amber-500">Live</p>
-        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Monitoring</p>
+      <div class="bg-white p-4 sm:p-6 border border-slate-100">
+        <dt class="text-sm text-slate-500">Période couverte</dt>
+        <dd class="text-2xl sm:text-3xl md:text-4xl tracking-tighter text-slate-900 mt-2 tabular-nums whitespace-nowrap">
+          {{ summary ? summary.firstYear : '—' }}<span class="text-amber-700">-</span>{{ summary ? summary.lastYear : '' }}
+        </dd>
       </div>
-    </div>
+    </dl>
   </section>
   <section class="py-20 bg-white">
   <div class="max-w-7xl mx-auto px-8">
     <div class="grid lg:grid-cols-2 gap-16 items-center">
-      <div class="order-2 lg:order-1">
+      <div class="lg:order-2">
+        <h2 class="text-4xl tracking-tighter mb-6">La donnée au service de la <span class="text-amber-700">résilience</span>.</h2>
+        <p class="text-slate-500 mb-8">Chaque point sur notre carte représente une réalité terrain validée, permettant aux décideurs d'anticiper les crises futures.</p>
+      </div>
+      <div class="lg:order-1">
         <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100">
           <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-white">
-              <mat-icon>database</mat-icon>
+              <mat-icon>storage</mat-icon>
             </div>
-            <h3 class="text-2xl font-black text-slate-900">Standard EM-DAT</h3>
+            <h3 class="text-2xl text-slate-900">Standard EM-DAT</h3>
           </div>
           <p class="text-slate-600 leading-relaxed mb-6">
-            UNOFIVE utilise EM-DAT, la base de données mondiale de référence sur les catastrophes. En analysant plus de 25 ans d'archives, nous fournissons des informations sur les risques en Afrique de l'Ouest.
+            UNOFIVE utilise EM-DAT, la base de données mondiale de référence sur les catastrophes. En analysant les archives de 2000 à 2026, nous fournissons des informations sur les risques en Afrique.
           </p>
           <ul class="space-y-3">
-            <li class="flex items-center gap-3 text-sm font-bold text-slate-700">
-              <mat-icon class="text-green-500 !text-sm">check_circle</mat-icon> 2000 — 2025 : Couverture historique complète
+            <li class="flex items-center gap-3 text-sm text-slate-700">
+              <mat-icon class="text-green-500 !text-sm">check_circle</mat-icon> 2000-2026 : couverture historique
             </li>
-            <li class="flex items-center gap-3 text-sm font-bold text-slate-700">
+            <li class="flex items-center gap-3 text-sm text-slate-700">
               <mat-icon class="text-green-500 !text-sm">check_circle</mat-icon> 9 indicateurs de risques climatiques et sanitaires
             </li>
           </ul>
         </div>
       </div>
-      <div class="order-1 lg:order-2">
-        <h2 class="text-4xl font-black tracking-tighter mb-6">La donnée au service de la <span class="text-amber-500">résilience</span>.</h2>
-        <p class="text-slate-500 mb-8">Chaque point sur notre carte représente une réalité terrain validée, permettant aux décideurs d'anticiper les crises futures.</p>
-      </div>
-    </div>
-  </div>
-</section>
-<section class="py-16 bg-slate-50 overflow-hidden">
-  <div class="max-w-7xl mx-auto px-8 text-center">
-    <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-amber-500 mb-10">Territoires Couverts</h4>
-    
-    <div class="flex flex-wrap justify-center gap-10 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
-      
-      <div class="flex flex-col items-center gap-3 group cursor-pointer">
-        <div class="overflow-hidden rounded shadow-sm border border-slate-200 transition-transform duration-300 group-hover:scale-125 group-hover:shadow-lg">
-          <img src="https://flagcdn.com/sn.svg" class="w-10 h-7 object-cover" alt="Sénégal">
-        </div>
-        <span class="text-[9px] font-black text-slate-400 tracking-tighter transition-colors group-hover:text-slate-900">SÉNÉGAL</span>
-      </div>
-
-      <div class="flex flex-col items-center gap-3 group cursor-pointer">
-        <div class="overflow-hidden rounded shadow-sm border border-slate-200 transition-transform duration-300 group-hover:scale-125 group-hover:shadow-lg">
-          <img src="https://flagcdn.com/ci.svg" class="w-10 h-7 object-cover" alt="Côte d'Ivoire">
-        </div>
-        <span class="text-[9px] font-black text-slate-400 tracking-tighter transition-colors group-hover:text-slate-900">CÔTE D'IVOIRE</span>
-      </div>
-
-      <div class="flex flex-col items-center gap-3 group cursor-pointer">
-        <div class="overflow-hidden rounded shadow-sm border border-slate-200 transition-transform duration-300 group-hover:scale-125 group-hover:shadow-lg">
-          <img src="https://flagcdn.com/ml.svg" class="w-10 h-7 object-cover" alt="Mali">
-        </div>
-        <span class="text-[9px] font-black text-slate-400 tracking-tighter transition-colors group-hover:text-slate-900">MALI</span>
-      </div>
-
-      <div class="flex flex-col items-center gap-3 group cursor-pointer">
-        <div class="overflow-hidden rounded shadow-sm border border-slate-200 transition-transform duration-300 group-hover:scale-125 group-hover:shadow-lg">
-          <img src="https://flagcdn.com/bf.svg" class="w-10 h-7 object-cover" alt="Burkina Faso">
-        </div>
-        <span class="text-[9px] font-black text-slate-400 tracking-tighter transition-colors group-hover:text-slate-900">BURKINA FASO</span>
-      </div>
-
-      <div class="flex flex-col items-center gap-3 group cursor-pointer">
-        <div class="overflow-hidden rounded shadow-sm border border-slate-200 transition-transform duration-300 group-hover:scale-125 group-hover:shadow-lg">
-          <img src="https://flagcdn.com/gn.svg" class="w-10 h-7 object-cover" alt="Guinée">
-        </div>
-        <span class="text-[9px] font-black text-slate-400 tracking-tighter transition-colors group-hover:text-slate-900">GUINÉE</span>
-      </div>
-
-      <div class="flex flex-col items-center gap-3 group cursor-pointer">
-        <div class="overflow-hidden rounded shadow-sm border border-slate-200 transition-transform duration-300 group-hover:scale-125 group-hover:shadow-lg">
-          <img src="https://flagcdn.com/gw.svg" class="w-10 h-7 object-cover" alt="Guinée-Bissau">
-        </div>
-        <span class="text-[9px] font-black text-slate-400 tracking-tighter transition-colors group-hover:text-slate-900">GUINÉE-BISSAU</span>
-      </div>
-
-      <div class="flex flex-col items-center gap-3 group cursor-pointer">
-        <div class="overflow-hidden rounded shadow-sm border border-slate-200 transition-transform duration-300 group-hover:scale-125 group-hover:shadow-lg">
-          <img src="https://flagcdn.com/bj.svg" class="w-10 h-7 object-cover" alt="Bénin">
-        </div>
-        <span class="text-[9px] font-black text-slate-400 tracking-tighter transition-colors group-hover:text-slate-900">BÉNIN</span>
-      </div>
-
-      <div class="flex flex-col items-center gap-3 group cursor-pointer">
-        <div class="overflow-hidden rounded shadow-sm border border-slate-200 transition-transform duration-300 group-hover:scale-125 group-hover:shadow-lg">
-          <img src="https://flagcdn.com/tg.svg" class="w-10 h-7 object-cover" alt="Togo">
-        </div>
-        <span class="text-[9px] font-black text-slate-400 tracking-tighter transition-colors group-hover:text-slate-900">TOGO</span>
-      </div>
-
-      <div class="flex flex-col items-center gap-3 group cursor-pointer">
-        <div class="overflow-hidden rounded shadow-sm border border-slate-200 transition-transform duration-300 group-hover:scale-125 group-hover:shadow-lg">
-          <img src="https://flagcdn.com/ne.svg" class="w-10 h-7 object-cover" alt="Niger">
-        </div>
-        <span class="text-[9px] font-black text-slate-400 tracking-tighter transition-colors group-hover:text-slate-900">NIGER</span>
-      </div>
-
-      <div class="flex flex-col items-center gap-3 group cursor-pointer">
-        <div class="overflow-hidden rounded shadow-sm border border-slate-200 transition-transform duration-300 group-hover:scale-125 group-hover:shadow-lg">
-          <img src="https://flagcdn.com/ng.svg" class="w-10 h-7 object-cover" alt="Nigéria">
-        </div>
-        <span class="text-[9px] font-black text-slate-400 tracking-tighter transition-colors group-hover:text-slate-900">NIGÉRIA</span>
-      </div>
-
-      <div class="flex flex-col items-center gap-3 group cursor-pointer">
-        <div class="overflow-hidden rounded shadow-sm border border-slate-200 transition-transform duration-300 group-hover:scale-125 group-hover:shadow-lg">
-          <img src="https://flagcdn.com/gh.svg" class="w-10 h-7 object-cover" alt="Ghana">
-        </div>
-        <span class="text-[9px] font-black text-slate-400 tracking-tighter transition-colors group-hover:text-slate-900">GHANA</span>
-      </div>
-
     </div>
   </div>
 </section>
 <section class="py-16 bg-white">
   <div class="max-w-7xl mx-auto px-6">
     <div class="text-center mb-12">
-       <h3 class="text-2xl font-black text-slate-900 tracking-tight ml-2">UNO<span
-          class="text-amber-500 font-light">FIVE</span></h3>
-      <p class="text-slate-400 text-sm font-medium">TEAM</p>
+      <h2 class="text-2xl font-black text-slate-900 tracking-tight">UNO<span class="text-amber-500 font-light">FIVE</span><span class="sr-only"> : l'équipe</span></h2>
+      <p class="text-slate-500 text-sm font-medium" aria-hidden="true">Équipe</p>
     </div>
     <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
       <div class="group text-center">
         <div class="relative inline-block mb-4">
           <div class="absolute inset-0 bg-amber-500 rounded-full scale-0 group-hover:scale-105 transition-transform opacity-10"></div>
-          <img src="/m.jpeg" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg relative z-10" alt="SN">
+          <img src="/m.jpeg" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg relative z-10" alt="">
           <div class="absolute bottom-1 right-1 bg-white shadow-md rounded-full w-9 h-9 flex items-center justify-center z-20 overflow-hidden border border-slate-100 p-1.5">
             <img src="https://flagcdn.com/sn.svg" class="w-full h-full object-cover rounded-sm" alt="Sénégal">
           </div>
         </div>
-        <h3 class="font-black text-slate-900 leading-none mb-1">Mouhamadou DIAMANKA</h3>
+        <h3 class="text-slate-900 leading-none mb-1">Mouhamadou DIAMANKA</h3>
       </div>
       <div class="group text-center">
         <div class="relative inline-block mb-4">
           <div class="absolute inset-0 bg-amber-500 rounded-full scale-0 group-hover:scale-105 transition-transform opacity-10"></div>
-          <img src="/e.jpeg" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg relative z-10" alt="CI">
+          <img src="/e.jpeg" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg relative z-10" alt="">
           <div class="absolute bottom-1 right-1 bg-white shadow-md rounded-full w-9 h-9 flex items-center justify-center z-20 overflow-hidden border border-slate-100 p-1.5">
             <img src="https://flagcdn.com/ci.svg" class="w-full h-full object-cover rounded-sm" alt="Côte d'Ivoire">
           </div>
         </div>
-        <h3 class="font-black text-slate-900 leading-none mb-1">Koffi Evano KOUAKOU</h3>
+        <h3 class="text-slate-900 leading-none mb-1">Koffi Evano KOUAKOU</h3>
       </div>
     </div>
   </div>
@@ -225,38 +146,38 @@
     <div class="grid md:grid-cols-4 gap-12 mb-12">
       <div class="col-span-2">
         <div class="flex items-center mb-4">
-          <img src="/logo.png" width="40" class="brightness-0 invert" alt="Logo">
-          <h5 class="text-xl font-black text-white ml-2">UNO<span class="text-amber-500 font-light">FIVE</span></h5>
+          <img src="/logo.png" width="40" class="brightness-0 invert" alt="">
+          <p class="text-xl font-black text-white ml-2">UNO<span class="text-amber-500 font-light">FIVE</span></p>
         </div>
-        <p class="text-slate-500 text-xs leading-relaxed max-w-xs">
-          Plateforme d'intelligence géospatiale dédiée à la résilience climatique en Afrique de l'Ouest. Analyse de données 2000 — 2025.
+        <p class="text-slate-400 text-sm leading-relaxed max-w-xs">
+          Plateforme d'intelligence géospatiale dédiée à la résilience climatique en Afrique. Analyse de données 2000-2026.
         </p>
       </div>
 
       <div>
-        <h6 class="text-white text-[10px] font-black uppercase tracking-widest mb-4">Plateforme</h6>
-        <ul class="text-slate-500 text-xs space-y-2">
-          <li><a routerLink="/map" class="hover:text-amber-500 transition-colors">Carte Interactive</a></li>
-          <li><a routerLink="/api" class="hover:text-amber-500 transition-colors">API & Documentation</a></li>
+        <h2 class="text-white text-sm mb-4">Plateforme</h2>
+        <ul class="text-slate-400 text-sm space-y-2">
+          <li><a routerLink="/map" class="hover:text-amber-500 transition-colors">Carte interactive</a></li>
+          <li><a routerLink="/api" class="hover:text-amber-500 transition-colors">API et documentation</a></li>
         </ul>
       </div>
 
       <div>
-        <h6 class="text-white text-[10px] font-black uppercase tracking-widest mb-4">Contact</h6>
-        <ul class="text-slate-500 text-xs space-y-2">
+        <h2 class="text-white text-sm mb-4">Contact</h2>
+        <ul class="text-slate-400 text-sm space-y-2">
           <li class="flex items-center gap-2"><mat-icon class="!text-sm">mail</mat-icon> contact&#64;unofive.com</li>
-          <li class="flex items-center gap-2"><span class="text-[10px]">🇸🇳 / 🇨🇮</span> Bureau régional</li>
+          <li class="flex items-center gap-2"><span>🇸🇳 / 🇨🇮</span> Bureau régional</li>
         </ul>
       </div>
     </div>
 
     <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
-      <p class="text-[10px] text-slate-600 font-bold uppercase tracking-tighter">
+      <p class="text-sm text-slate-400">
         © 2025 UNOFIVE. Tous droits réservés.
       </p>
       <div class="flex gap-6">
-        <a href="#" class="text-slate-600 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-tighter">Confidentialité</a>
-        <a href="#" class="text-slate-600 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-tighter">Mentions Légales</a>
+        <a routerLink="/confidentialite" class="text-slate-400 hover:text-white transition-colors text-sm">Confidentialité</a>
+        <a routerLink="/accessibilite" class="text-slate-400 hover:text-white transition-colors text-sm">Accessibilité</a>
       </div>
     </div>
   </div>

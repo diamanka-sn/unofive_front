@@ -1,9 +1,15 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+
 export interface PrintData {
   title: string;
   description: string;
+  // Rappel de ce qui est affiché sur la carte (non modifiable)
+  summary: string;
+  framing: 'africa' | 'current';
+  orientation: 'landscape' | 'portrait';
 }
+
 @Component({
   selector: 'app-print-dialog',
   standalone: false,
@@ -11,23 +17,13 @@ export interface PrintData {
   styleUrl: './print-dialog.component.scss'
 })
 export class PrintDialogComponent {
-  isPrinting = false;
-constructor(
+  constructor(
     public dialogRef: MatDialogRef<PrintDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: PrintData
   ) {}
 
- 
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-  handlePrint() {
-    this.isPrinting = true;
-    
-    setTimeout(() => {
-      this.dialogRef.close(this.data);
-      this.isPrinting = false;
-    }, 1000); 
+  confirm(): void {
+    if (!this.data.title.trim()) return;
+    this.dialogRef.close({ ...this.data, title: this.data.title.trim(), description: this.data.description.trim() });
   }
 }

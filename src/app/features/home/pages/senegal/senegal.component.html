@@ -1,0 +1,169 @@
+<div class="flex flex-col lg:flex-row lg:h-[calc(100vh-64px)] bg-slate-50">
+  <!-- Panneau : année, légende interactive, évolution -->
+  <aside class="order-2 lg:order-1 lg:w-[380px] shrink-0 bg-white border-t lg:border-t-0 lg:border-r border-slate-200 lg:overflow-y-auto">
+    <div class="p-5 border-b border-slate-100">
+      <h1 class="text-2xl tracking-tight text-slate-900">Occupation du sol <span class="text-amber-700">au Sénégal</span></h1>
+      <p class="text-sm text-slate-500 mt-1">
+        Cartes au 1/200 000 de l'ANAT et du CSE, nomenclature harmonisée en 21 classes et 5 thèmes.
+      </p>
+
+      <div class="mt-4" role="group" aria-label="Année affichée">
+        <div class="grid border border-slate-200" [style.gridTemplateColumns]="'repeat(' + (years.length || 1) + ', minmax(0, 1fr))'">
+          <button *ngFor="let y of years" type="button" (click)="setYear(y)" [attr.aria-pressed]="y === year"
+            class="py-2 text-sm tabular-nums transition-colors"
+            [ngClass]="y === year ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 hover:bg-slate-50'">
+            {{ y }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex border-b border-slate-200" role="group" aria-label="Contenu du panneau">
+      <button type="button" (click)="tab = 'legende'" [attr.aria-pressed]="tab === 'legende'"
+        class="flex-1 py-2.5 text-sm border-b-2 -mb-px"
+        [ngClass]="tab === 'legende' ? 'border-amber-600 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-800'">
+        Légende
+      </button>
+      <button type="button" (click)="tab = 'evolution'" [attr.aria-pressed]="tab === 'evolution'"
+        class="flex-1 py-2.5 text-sm border-b-2 -mb-px"
+        [ngClass]="tab === 'evolution' ? 'border-amber-600 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-800'">
+        Évolution<span *ngIf="years.length > 1"> {{ years[0] }}-{{ years[years.length - 1] }}</span>
+      </button>
+    </div>
+
+    <p *ngIf="statsError" class="m-5 p-3 text-sm text-amber-800 bg-amber-50 border border-amber-200">
+      Les superficies ne sont pas disponibles. Aucune année n'a encore été importée depuis l'espace admin (Occupation du sol).
+    </p>
+
+    <!-- Légende : cocher / décocher une classe ou un thème entier -->
+    <section *ngIf="tab === 'legende'" class="p-5 space-y-5" [attr.aria-label]="'Légende et superficies ' + year">
+      <div class="flex items-center justify-between text-xs text-slate-500">
+        <span>Superficie en {{ year }} : <span class="text-slate-800 tabular-nums">{{ totalKm2 | number: '1.0-0' }} km²</span></span>
+        <button *ngIf="hidden.size" type="button" (click)="showAll()" class="text-amber-700 hover:underline">Tout afficher</button>
+      </div>
+
+      <div *ngFor="let row of themeRows">
+        <label class="flex items-center gap-2 cursor-pointer pb-1.5 border-b border-slate-100">
+          <input type="checkbox" class="accent-slate-900"
+            [checked]="themeState(row.theme) === 'all'" [indeterminate]="themeState(row.theme) === 'some'"
+            (change)="toggleTheme(row.theme)">
+          <span class="flex-1 text-sm text-slate-900">{{ row.theme.label }}</span>
+          <span class="text-xs text-slate-500 tabular-nums">{{ row.share | number: '1.1-1' }} %</span>
+        </label>
+        <ul class="mt-1.5 space-y-0.5">
+          <li *ngFor="let c of row.classes">
+            <label class="flex items-center gap-2 py-1 cursor-pointer group" [title]="c.description">
+              <input type="checkbox" class="accent-slate-900" [checked]="!hidden.has(c.code)" (change)="toggleClass(c.code)">
+              <span class="w-3.5 h-3.5 shrink-0 border border-black/10" [style.backgroundColor]="c.color" aria-hidden="true"></span>
+              <span class="flex-1 text-sm text-slate-700 group-hover:text-slate-900" [class.line-through]="hidden.has(c.code)">{{ c.label }}</span>
+              <span class="text-xs text-slate-500 tabular-nums whitespace-nowrap">{{ c.km2 | number: '1.0-0' }} km²</span>
+            </label>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Évolution des superficies entre les trois dates -->
+    <section *ngIf="tab === 'evolution'" class="p-5 space-y-6" aria-label="Évolution des superficies">
+      <table class="w-full text-xs sm:text-sm">
+        <caption class="text-left text-slate-900 mb-2">Superficie par thème (km²)</caption>
+        <thead class="text-xs text-slate-500">
+          <tr class="border-b border-slate-200">
+            <th scope="col" class="text-left font-normal py-1.5">Thème</th>
+            <th *ngFor="let y of years" scope="col" class="text-right font-normal py-1.5 pl-2">{{ y }}</th>
+            <th scope="col" class="text-right font-normal py-1.5">Variation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of themeEvolution" class="border-b border-slate-100">
+            <th scope="row" class="text-left font-normal py-2">
+              <span class="inline-block w-2.5 h-2.5 mr-1.5 align-middle" [style.backgroundColor]="r.color" aria-hidden="true"></span>{{ r.label }}
+            </th>
+            <td *ngFor="let a of r.areas" class="text-right tabular-nums text-slate-700 pl-2">{{ a | number: '1.0-0' }}</td>
+            <td class="text-right tabular-nums pl-2 whitespace-nowrap" [ngClass]="(r.change ?? 0) < 0 ? 'text-red-700' : 'text-green-700'">
+              {{ r.change === null ? '-' : ((r.change > 0 ? '+' : '') + (r.change | number: '1.1-1') + ' %') }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <details class="group">
+        <summary class="cursor-pointer text-sm text-slate-900 select-none">Détail des 21 classes</summary>
+        <table class="w-full text-xs mt-2">
+          <caption class="sr-only">Superficie par classe (km²) en 2010, 2015 et 2020</caption>
+          <thead class="text-slate-500">
+            <tr class="border-b border-slate-200">
+              <th scope="col" class="text-left font-normal py-1.5">Classe</th>
+              <th *ngFor="let y of years" scope="col" class="text-right font-normal py-1.5 pl-2">{{ y }}</th>
+              <th scope="col" class="text-right font-normal py-1.5">Var.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of classEvolution" class="border-b border-slate-100">
+              <th scope="row" class="text-left font-normal py-1.5">
+                <span class="inline-block w-2 h-2 mr-1 align-middle" [style.backgroundColor]="r.color" aria-hidden="true"></span>{{ r.label }}
+              </th>
+              <td *ngFor="let a of r.areas" class="text-right tabular-nums text-slate-700 pl-2">{{ a | number: '1.0-0' }}</td>
+              <td class="text-right tabular-nums pl-2 whitespace-nowrap" [ngClass]="(r.change ?? 0) < 0 ? 'text-red-700' : 'text-green-700'">
+                {{ r.change === null ? '-' : ((r.change > 0 ? '+' : '') + (r.change | number: '1.0-0') + ' %') }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </details>
+
+      <p class="text-xs text-slate-500 leading-relaxed">
+        Superficies calculées à partir des polygones (projection UTM 28N). Les cartes des différentes années
+        peuvent provenir de producteurs différents (ANAT, CSE) : une partie des écarts peut venir de la méthode plutôt que du terrain.
+      </p>
+    </section>
+
+    <p class="px-5 pb-5 text-xs text-slate-500">
+      Source : cartes d'occupation du sol au 1/200 000 de l'ANAT et du CSE.
+    </p>
+  </aside>
+
+  <!-- Carte -->
+  <div class="order-1 lg:order-2 relative flex-none h-[65vh] lg:flex-1 lg:h-auto">
+    <div #mapEl id="occsol-map" class="absolute inset-0" tabindex="0"
+      [attr.aria-label]="'Carte de l\'occupation du sol au Sénégal en ' + year + '. Flèches pour se déplacer, + et - pour zoomer.'"></div>
+    <div #tooltip class="occsol-tooltip" hidden role="presentation"></div>
+
+    <!-- Fond de carte et transparence -->
+    <div class="absolute top-3 right-3 z-10 bg-white/95 border border-slate-200 shadow-sm p-3 w-52 space-y-3 text-xs">
+      <div role="group" aria-label="Fond de carte">
+        <p class="text-slate-500 mb-1">Fond de carte</p>
+        <div class="grid grid-cols-2 border border-slate-200">
+          <button type="button" (click)="setBasemap('gris')" [attr.aria-pressed]="basemap === 'gris'" class="py-1.5"
+            [ngClass]="basemap === 'gris' ? 'bg-slate-900 text-white' : 'bg-white text-slate-700'">Gris</button>
+          <button type="button" (click)="setBasemap('satellite')" [attr.aria-pressed]="basemap === 'satellite'" class="py-1.5"
+            [ngClass]="basemap === 'satellite' ? 'bg-slate-900 text-white' : 'bg-white text-slate-700'">Satellite</button>
+        </div>
+      </div>
+      <label class="block">
+        <span class="flex justify-between text-slate-500 mb-1">Opacité <span class="tabular-nums">{{ opacity }} %</span></span>
+        <input type="range" min="0" max="100" step="5" [value]="opacity" (input)="setOpacity(+$any($event.target).value)"
+          class="w-full accent-slate-900">
+      </label>
+    </div>
+
+    <!-- Fiche du polygone cliqué -->
+    <div *ngIf="selected" class="absolute bottom-10 left-3 z-10 bg-white border border-slate-200 shadow-md p-4 w-72 max-w-[calc(100%-1.5rem)]"
+      role="status">
+      <div class="flex items-start gap-2">
+        <span class="w-4 h-4 mt-0.5 shrink-0 border border-black/10" [style.backgroundColor]="selected.color" aria-hidden="true"></span>
+        <div class="flex-1">
+          <p class="text-sm text-slate-900">{{ selected.label }}</p>
+          <p class="text-xs text-slate-500">{{ selected.theme }} · {{ year }}</p>
+        </div>
+        <button type="button" (click)="selected = null" class="text-slate-400 hover:text-slate-700" aria-label="Fermer la fiche">
+          <mat-icon class="!text-lg">close</mat-icon>
+        </button>
+      </div>
+      <p class="text-xs text-slate-600 mt-2">{{ selected.description }}</p>
+      <p class="text-sm text-slate-900 mt-2 tabular-nums">
+        Polygone : {{ selected.ha | number }} ha <span class="text-slate-500">({{ selected.ha / 100 | number: '1.0-2' }} km²)</span>
+      </p>
+    </div>
+  </div>
+</div>

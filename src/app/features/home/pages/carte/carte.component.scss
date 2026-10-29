@@ -15,8 +15,9 @@
   left: 0;
   z-index: 0;
 }
+// Fiche pays : 450 px sur grand écran, toute la largeur sur téléphone
 :host ::ng-deep .p-drawer {
-    width: 450px !important; 
+    width: min(450px, 100vw) !important;
 }
 
 
@@ -29,26 +30,42 @@
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  width: 110px; /* Très étroit */
+  min-width: 140px;
+  max-width: 180px;
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid #e2e8f0;
+}
+
+// Téléphone : la légende passe en bas à gauche, au-dessus de l'échelle, pour ne pas couvrir le filtre
+@media (max-width: 639px) {
+  .map-legend {
+    top: auto;
+    right: auto;
+    left: 12px;
+    bottom: 64px;
+    min-width: 0;
+    padding: 6px 10px;
+  }
 }
 
 .legend-header {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  flex-direction: column;
+  gap: 1px;
   margin-bottom: 8px;
   border-bottom: 1px solid #f1f5f9;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
 }
 
-.legend-header span {
-  font-size: 10px;
-  font-weight: 900;
-  text-transform: uppercase;
-  color: #475569;
-  letter-spacing: 0.5px;
+.legend-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.legend-subtitle {
+  font-size: 12px;
+  color: #64748b;
 }
 
 .legend-item {
@@ -65,14 +82,15 @@
 }
 
 .color-box {
-  width: 10px;
+  width: 12px;
   height: 10px;
   border-radius: 2px;
+  border: 1px solid rgba(15, 23, 42, 0.15);
   flex-shrink: 0;
 }
 
 .label {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   color: #1e293b;
   white-space: nowrap;
@@ -116,78 +134,10 @@ mat-icon {
   border-top: none !important;
   color: #333 !important;
   font-size: 11px !important;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: inherit;
   font-weight: bold;
 }
 
-@media print {
-  /* Configuration de la page */
-  @page {
-    size: landscape;
-    margin: 1cm;
-  }
-* {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  /* Conteneur principal */
-  .relative.h-\[calc\(100vh-64px\)\] {
-    height: 100vh !important;
-    width: 100vw !important;
-    background: white !important;
-  }
-
-  /* Header en haut */
-  #print-header {
-    display: block !important;
-    position: absolute;
-    top: 0;
-    width: 100%;
-  }
-
-  /* Carte au milieu */
-  #map {
-    display: block !important;
-    position: absolute !important;
-    top: 80px; /* Après le header */
-    height: 65vh !important;
-    width: 100% !important;
-    border: 1px solid #f1f5f9;
-  }
-
-  /* Footer en bas */
-  #print-footer {
-    display: block !important;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    visibility: visible !important;
-  }
-
-  #print-footer * {
-    visibility: visible !important;
-  }
-
-  /* Légende positionnée stratégiquement */
-  .map-legend {
-    display: block !important;
-    position: absolute !important;
-  top: 35px;
-  right: 10px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 8px 12px;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  width: 110px; /* Très étroit */
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  }
-}
-
-#print-footer.hidden {
-  display: none;
-}
 .map-btn {
   @apply p-1.5 bg-white border border-slate-200 rounded-lg shadow-md 
          hover:bg-slate-50 transition-all text-slate-600 flex items-center justify-center;
@@ -204,6 +154,17 @@ mat-icon {
   font-size: 18px !important;
 }
 
-button:focus {
-  outline: none;
+// Focus clavier visible sur les boutons de la carte (l'ancien « outline: none » le supprimait).
+// Contour intérieur pour les boutons groupés : le conteneur à coins arrondis couperait un contour extérieur.
+.map-btn:focus-visible {
+  outline: 3px solid #d97706;
+  outline-offset: 2px;
+  transition: background-color 150ms; // contour affiché immédiatement, pas animé par transition-all
+}
+
+.map-btn-flat:focus-visible {
+  outline: 3px solid #d97706;
+  outline-offset: -3px;
+  background-color: #fffbeb;
+  transition: background-color 150ms;
 }

@@ -12,12 +12,31 @@ html {
       primary: mat.$azure-palette,
       tertiary: mat.$blue-palette,
     ),
-    typography: Roboto,
+    typography: 'IBM Plex Sans',
     density: 0,
   ));
 }
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+// Focus clavier visible partout (RGAA 10.7) : ambre foncé, contraste ≥ 3:1 sur fond blanc comme sur le pied de page sombre.
+// :where() garde une spécificité nulle, les composants peuvent l'ajuster.
+:where(a, button, input, select, textarea, summary, [tabindex], [role="button"], [role="tab"], [role="option"]):focus-visible {
+  outline: 3px solid #d97706;
+  outline-offset: 2px;
+}
+
+// Fenêtres de dialogue (recherche, impression) : sans l'arrondi par défaut d'Angular Material
+.mat-mdc-dialog-surface {
+  border-radius: 0 !important;
+}
+// Police du site : IBM Plex Sans (textes) et IBM Plex Mono (code, numéros DisNo), chargées dans index.html.
+// Déclaré hors couche : prioritaire sur les valeurs par défaut de Tailwind (dans @layer theme), donc sur font-sans / font-mono.
+:root {
+  --font-sans: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, monospace;
+}
+
+body { margin: 0; font-family: var(--font-sans); }
 
 .unofive-field.mat-focused {
   

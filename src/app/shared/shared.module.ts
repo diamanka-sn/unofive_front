@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -83,6 +84,7 @@ const MATERIAL_MODULE = [
   ],
   imports: [
     CommonModule,
+    RouterModule,
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,

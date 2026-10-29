@@ -1,0 +1,126 @@
+<p-toast></p-toast>
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+
+<div class="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
+  <header>
+    <h1 class="text-2xl font-semibold text-slate-900">Occupation du sol du Sénégal</h1>
+    <p class="text-sm text-slate-500 mt-1">
+      Importez un fichier GeoJSON par année. Il alimente la page publique « Sénégal » (carte, légende et évolution).
+    </p>
+  </header>
+
+  <!-- Années en base -->
+  <section class="bg-white rounded-lg border border-slate-200">
+    <div class="px-5 py-4 border-b border-slate-200">
+      <h2 class="text-sm font-medium text-slate-900">Années en base</h2>
+    </div>
+    <p *ngIf="loadingYears" class="px-5 py-4 text-sm text-slate-500">Chargement…</p>
+    <p *ngIf="!loadingYears && !years.length" class="px-5 py-4 text-sm text-slate-500">Aucune donnée : importez un premier fichier ci-dessous.</p>
+    <table *ngIf="!loadingYears && years.length" class="w-full text-sm">
+      <caption class="sr-only">Années d'occupation du sol importées</caption>
+      <thead class="bg-slate-50 text-slate-500">
+        <tr>
+          <th scope="col" class="text-left font-medium px-5 py-2">Année</th>
+          <th scope="col" class="text-right font-medium px-5 py-2">Polygones</th>
+          <th scope="col" class="text-right font-medium px-5 py-2">Superficie</th>
+          <th scope="col" class="px-5 py-2"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr *ngFor="let row of years">
+          <th scope="row" class="text-left font-medium text-slate-900 px-5 py-3 tabular-nums">{{ row.year }}</th>
+          <td class="text-right tabular-nums px-5 py-3 text-slate-700">{{ row.polygons | number }}</td>
+          <td class="text-right tabular-nums px-5 py-3 text-slate-700">{{ row.km2 | number: '1.0-0' }} km²</td>
+          <td class="text-right px-5 py-3">
+            <button type="button" (click)="confirmDelete(row)" [disabled]="busy"
+              class="text-sm text-red-700 hover:underline disabled:opacity-40 disabled:cursor-not-allowed">
+              Supprimer<span class="sr-only"> l'année {{ row.year }}</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 1. Fichier -->
+  <section class="bg-white rounded-lg border border-slate-200 p-5">
+    <h2 class="text-sm font-medium text-slate-900 mb-1">1. Fichier GeoJSON</h2>
+    <p class="text-xs text-slate-500 mb-3">
+      Attributs utilisés : <code>NOM</code> (classe d'occupation) et <code>layer</code> (région / feuille). Les autres
+      (fid, OBJECTID, Shape_Area…) sont ignorés : la superficie est recalculée en UTM 28N. Projection : celle indiquée
+      dans le fichier (WGS 84 ou UTM 28N).
+    </p>
+
+    <input #fileInput type="file" (change)="onFileChange($event)" hidden accept=".geojson,.json,application/geo+json,application/json">
+
+    <button type="button" *ngIf="!file" aria-label="Choisir un fichier GeoJSON (ou le glisser ici)"
+      class="w-full border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors"
+      [ngClass]="isDragging ? 'border-amber-500 bg-amber-50' : 'border-slate-300 hover:border-slate-400'"
+      (click)="fileInput.click()" (dragover)="onDragOver($event)" (dragleave)="isDragging = false" (drop)="onDrop($event)">
+      <mat-icon aria-hidden="true" class="text-slate-400 !text-3xl !w-8 !h-8">upload_file</mat-icon>
+      <span class="block text-sm text-slate-700 mt-2">{{ isDragging ? 'Déposez le fichier' : 'Glissez un fichier ici ou cliquez pour parcourir' }}</span>
+      <span class="block text-xs text-slate-500 mt-1">Un fichier par année, l'année dans le nom (ex. occsol_2020.geojson)</span>
+    </button>
+
+    <div *ngIf="file" class="space-y-4">
+      <div class="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-md border border-slate-200">
+        <mat-icon class="text-emerald-600 shrink-0" aria-hidden="true">layers</mat-icon>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-slate-900 truncate">{{ file.name }}</p>
+          <p class="text-xs text-slate-500">{{ file.size / 1048576 | number: '1.0-1' }} Mo</p>
+        </div>
+        <button type="button" (click)="reset()" [disabled]="busy"
+          class="text-sm text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-md hover:bg-slate-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+          Changer de fichier
+        </button>
+      </div>
+
+      <div class="flex flex-wrap items-end gap-4">
+        <label class="block">
+          <span class="block text-sm text-slate-700 mb-1">Année des données</span>
+          <input type="number" min="1950" max="2100" [(ngModel)]="year" [disabled]="busy"
+            class="w-32 px-3 py-2 text-sm border border-slate-300 rounded-md tabular-nums focus:border-amber-500 focus:outline-none">
+        </label>
+        <button type="button" (click)="confirmImport()" [disabled]="!year || busy"
+          class="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-slate-700 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed">
+          <mat-spinner *ngIf="busy" diameter="16"></mat-spinner>
+          {{ busy ? 'Import en cours…' : 'Importer' }}
+        </button>
+      </div>
+      <p *ngIf="!year" class="text-xs text-amber-800">Année non trouvée dans le nom du fichier : indiquez-la.</p>
+    </div>
+  </section>
+
+  <!-- 2. Import -->
+  <section *ngIf="uploadProgress || job || error" class="bg-white rounded-lg border border-slate-200 p-5 space-y-4" aria-live="polite">
+    <h2 class="text-sm font-medium text-slate-900">2. Import</h2>
+
+    <div *ngIf="uploadProgress">
+      <div class="flex justify-between text-sm text-slate-600 mb-1.5">
+        <span>Envoi du fichier</span>
+        <span class="tabular-nums">{{ uploadProgress }} %</span>
+      </div>
+      <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div class="h-full bg-emerald-600 transition-all duration-300" [style.width.%]="uploadProgress"></div>
+      </div>
+    </div>
+
+    <p *ngIf="job?.status === 'running'" class="text-sm text-slate-700">
+      Étape : {{ job?.phase }}<span *ngIf="job?.phase === 'Lecture'"> - {{ job?.features | number }} entités lues</span>
+    </p>
+
+    <div *ngIf="job?.logs?.length" class="max-h-56 overflow-y-auto rounded-md border border-slate-200 divide-y divide-slate-100">
+      <div *ngFor="let log of job?.logs" class="flex items-start gap-3 px-3 py-2 text-sm">
+        <span class="text-xs text-slate-500 tabular-nums pt-0.5 shrink-0">{{ log.time }}</span>
+        <mat-icon class="!text-base !w-4 !h-4 shrink-0 mt-0.5" aria-hidden="true"
+          [ngClass]="{ 'text-emerald-600': log.type === 'success', 'text-red-600': log.type === 'error', 'text-slate-400': log.type === 'info' }">
+          {{ log.type === 'success' ? 'check_circle' : log.type === 'error' ? 'error' : 'chevron_right' }}
+        </mat-icon>
+        <span [ngClass]="log.type === 'error' ? 'text-red-700' : 'text-slate-700'">{{ log.message }}</span>
+      </div>
+    </div>
+
+    <p *ngIf="error" class="text-sm text-red-700">{{ error }}</p>
+    <a *ngIf="job?.status === 'done'" routerLink="/senegal" class="inline-block text-sm text-amber-700 hover:underline">Voir la carte du Sénégal</a>
+  </section>
+</div>

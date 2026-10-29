@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CountryService } from '@/app/core/services/country.service';
+import { ALL_DISASTER_TYPES } from '@/app/core/constants/disaster-labels';
 
 @Component({
   selector: 'app-home-page',
@@ -6,47 +8,27 @@ import { Component } from '@angular/core';
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss'
 })
-export class HomePageComponent  {
- risks = [
-    { id: 'Flood', label: 'Inondations', icon: 'water_drop', color: '#3498db' },
-    { id: 'Drought', label: 'Sécheresse', icon: 'wb_sunny', color: '#f1c40f' },
-    { id: 'Storm', label: 'Tempêtes', icon: 'air', color: '#9b59b6' },
-    {
-      id: 'Epidemic',
-      label: 'Épidémies',
-      icon: 'medical_services',
-      color: '#e74c3c',
-    },
-    {
-      id: 'Wildfire',
-      label: 'Feux de forêt',
-      icon: 'local_fire_department',
-      color: '#e67e22',
-    },
-    {
-      id: 'Extreme temperature',
-      label: 'Températures extrêmes',
-      icon: 'thermostat',
-      color: '#d35400',
-    },
-    {
-      id: 'Infestation',
-      label: 'Infestations',
-      icon: 'bug_report',
-      color: '#27ae60',
-    },
-    {
-      id: 'Mass movement (wet)',
-      label: 'Glissements de terrain (humide)',
-      icon: 'terrain',
-      color: '#7f8c8d',
-    },
-    {
-      id: 'Animal incident',
-      label: 'Incidents animaliers',
-      icon: 'pets',
-      color: '#8e44ad',
-    },
+export class HomePageComponent implements OnInit {
+  // Chiffres clés lus dans la base, pour rester justes après chaque import
+  summary: { events: number; deaths: number; countries: number; firstYear: number; lastYear: number } | null = null;
+
+  constructor(private countryService: CountryService) {}
+
+  ngOnInit(): void {
+    this.countryService.getSummary().subscribe((s) => (this.summary = s));
+  }
+
+  get yearsCount(): number {
+    return this.summary ? this.summary.lastYear - this.summary.firstYear + 1 : 0;
+  }
+
+  // Les 9 risques mis en avant sur l'accueil (libellés et icônes de la liste partagée ; la carte propose tous les types)
+  private readonly HOME_RISKS = [
+    'Flood', 'Drought', 'Storm', 'Epidemic', 'Wildfire',
+    'Extreme temperature', 'Infestation', 'Mass movement (wet)', 'Animal incident',
   ];
+  riskTypes = this.HOME_RISKS
+    .map((id) => ALL_DISASTER_TYPES.find((t) => t.id === id))
+    .filter((t) => !!t);
 
 }

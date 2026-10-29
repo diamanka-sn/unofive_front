@@ -3,9 +3,11 @@
     <div class="w-full lg:w-[35%] p-6 sm:p-10 flex flex-col justify-center">
         <!-- <div class="text-center mb-6">
             <img src="/logo.png" width="50" alt="UnoFive" class="mx-auto mb-2">
-            <h5 class="text-xl font-black text-slate-900 tracking-tight leading-none">UNO<span class="text-amber-500 font-light">FIVE</span></h5>
+            <p class="text-xl font-black text-slate-900 tracking-tight leading-none" aria-hidden="true">UNO<span class="text-amber-500 font-light">FIVE</span></p>
             <p class="text-slate-500 text-xs mt-1">Espace géospatial</p>
         </div> -->
+
+        <h1 class="text-2xl text-slate-900 mb-5">Créer un compte</h1>
 
         <p-toast />
 
@@ -14,7 +16,7 @@
                 <mat-label>Nom complet</mat-label>
                 <input matInput type="text" formControlName="nom" id="nom" placeholder="Votre nom complet">
                 <mat-icon matSuffix class="text-slate-400 scale-75">person</mat-icon>
-                <mat-error *ngIf="nom.errors" class="text-[10px]">
+                <mat-error *ngIf="nom.errors" class="text-xs">
                     <span *ngIf="nom?.errors?.['required']">Le nom complet est obligatoire.</span>
                 </mat-error>
             </mat-form-field>
@@ -23,7 +25,7 @@
                 <mat-label>Adresse e-mail</mat-label>
                 <input matInput type="email" formControlName="email" id="email" placeholder="nom@unofive.com">
                 <mat-icon matSuffix class="text-slate-400 scale-75">email</mat-icon>
-                <mat-error *ngIf="email.errors" class="text-[10px]">
+                <mat-error *ngIf="email.errors" class="text-xs">
                     <span *ngIf="email?.errors?.['required']">L'adresse e-mail est obligatoire.</span>
                 </mat-error>
             </mat-form-field>
@@ -32,7 +34,7 @@
                 <mat-label>Mot de passe</mat-label>
                 <input matInput type="password" formControlName="password" id="password" placeholder="••••••••">
                 <mat-icon matSuffix class="text-slate-400 scale-75">lock</mat-icon>
-                <mat-error *ngIf="password.errors" class="text-[10px]">
+                <mat-error *ngIf="password.errors" class="text-xs">
                     <span *ngIf="password.errors?.['required']">Le mot de passe obligatoire</span>
                     <span *ngIf="password.errors?.['minlength']">Le mot de passe doit contenir au moins 8
                         caractères.</span>
@@ -45,11 +47,11 @@
                 <input matInput type="password" formControlName="confirmPassword" id="confirmPassword"
                     placeholder="••••••••">
                 <mat-icon matSuffix class="text-slate-400 scale-75">lock</mat-icon>
-                <mat-error *ngIf="confirmPassword.invalid && confirmPassword.touched" class="text-[10px]">
+                <mat-error *ngIf="confirmPassword.invalid && confirmPassword.touched" class="text-xs">
                     Les mots de passe doivent correspondre.
                 </mat-error>
             </mat-form-field>
-            <div class="flex items-center justify-between text-[11px] mb-2">
+            <div class="flex items-center justify-between text-sm mb-2">
                 <div class="flex items-center">
                     <input type="checkbox"
                         class="w-3.5 h-3.5 text-amber-500 border-slate-300 rounded focus:ring-amber-500" id="remember">
@@ -78,7 +80,7 @@
 
             <div class="relative flex items-center py-2">
                 <div class="flex-grow border-t border-slate-100"></div>
-                <span class="flex-shrink mx-3 text-slate-400 text-[10px] uppercase font-bold tracking-widest">ou</span>
+                <span class="flex-shrink mx-3 text-slate-500 text-xs">ou</span>
                 <div class="flex-grow border-t border-slate-100"></div>
             </div>
 
@@ -88,9 +90,9 @@
                 Google
             </button>
 
-            <p class="text-center text-slate-500 text-[11px] mt-4">
+            <p class="text-center text-slate-600 text-sm mt-4">
                 Vous avez un compte ?
-                <span (click)="register()" class="text-amber-600 font-bold cursor-pointer hover:text-amber-700 ml-1">
+                <span (click)="register()" class="text-amber-700 underline underline-offset-2 cursor-pointer hover:text-amber-800 ml-1">
                     Se connecter
                 </span>
             </p>
@@ -126,18 +128,13 @@
 
             <p class="text-slate-200 text-lg font-light leading-relaxed mb-8">
                 <span class="font-light text-white">Uno<span class="text-amber-500 font-light">FIVE</span></span>
-                centralise les données pour l'analyse des catastrophes naturelles sur l'ensemble du corridor
-                ouest-africain.
+                centralise les données pour l'analyse des catastrophes naturelles sur l'ensemble du continent africain.
             </p>
 
             <div class="grid grid-cols-3 gap-6 border-t border-white/10 pt-8">
                 <div>
-                    <div class="text-2xl font-bold text-amber-400">WESTAF</div>
-                    <div class="text-[10px] text-slate-400 uppercase tracking-wider">Zone de couverture</div>
-                </div>
-                <div>
                     <div class="text-2xl font-bold text-white">EM-DAT</div>
-                    <div class="text-[10px] text-slate-400 uppercase tracking-wider">Données</div>
+                    <div class="text-xs text-slate-300">Données</div>
                 </div>
             </div>
         </div>

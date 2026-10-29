@@ -56,12 +56,11 @@ export class DisastersComponent {
     if (this.previewData.length === 0) return;
 
     this.confirmationService.confirm({
-      header: 'Confirmer l\'importation',
-      message: `Voulez-vous synchroniser ces ${this.previewData.length} enregistrements avec la base de données ?`,
-      icon: 'pi pi-cloud-upload',
+      header: 'Confirmer l\'import',
+      message: `Importer ${this.previewData.length} lignes dans la base ? Les événements déjà présents seront mis à jour.`,
+      icon: 'pi pi-upload',
       acceptLabel: 'Importer',
-      rejectLabel: 'Vérifier encore',
-      acceptButtonStyleClass: 'p-button-warning',
+      rejectLabel: 'Annuler',
       rejectButtonStyleClass: 'p-button-secondary p-button-text',
       accept: async () => {
         await this.startImportProcess();
@@ -72,38 +71,49 @@ export class DisastersComponent {
   private async startImportProcess() {
     this.isProcessing = true;
     this.progress = 0;
-    this.addLog('Initialisation de la connexion sécurisée...', 'process');
+    this.addLog('Import démarré.', 'process');
 
-    const chunkSize = 200;
+    const chunkSize = 50;
     const totalRecords = this.previewData.length;
     const totalChunks = Math.ceil(totalRecords / chunkSize);
+
+    const skippedIsos = new Set<string>();
+    const totals = { inserted: 0, updated: 0, unchanged: 0 };
 
     try {
       for (let i = 0; i < totalRecords; i += chunkSize) {
         const chunk = this.previewData.slice(i, i + chunkSize);
         const currentBatch = Math.floor(i / chunkSize) + 1;
 
-        this.addLog(`Transfert lot ${currentBatch}/${totalChunks}...`, 'info');
+        this.addLog(`Lot ${currentBatch}/${totalChunks} envoyé.`, 'info');
 
-        await this.etlService.saveToDatabase(chunk).toPromise();
+        const res: any = await this.etlService.saveToDatabase(chunk).toPromise();
+        totals.inserted += res?.inserted ?? 0;
+        totals.updated += res?.updated ?? 0;
+        totals.unchanged += res?.unchanged ?? 0;
+        (res?.skipped ?? []).forEach((iso: string) => skippedIsos.add(iso));
 
         this.progress = Math.round((currentBatch / totalChunks) * 100);
       }
 
-      this.addLog('Félicitations ! Base de donnée à jour.', 'success');
+      if (skippedIsos.size > 0) {
+        this.addLog(`Lignes ignorées, pays absent de la base : ${[...skippedIsos].join(', ')}`, 'error');
+      }
+      const summary = `${totals.inserted} ajoutées, ${totals.updated} mises à jour, ${totals.unchanged} déjà à jour (non modifiées)`;
+      this.addLog(`Import terminé : ${summary}.`, 'success');
       this.messageService.add({
         severity: 'success',
-        summary: 'Succès',
-        detail: 'Données importées !',
+        summary: 'Import terminé',
+        detail: summary,
       });
-
-      setTimeout(() => this.executeReset(), 2000);
+      this.isProcessing = false;
     } catch (error: any) {
-      this.addLog(`Erreur réseau : ${error.message}`, 'error');
+      const serverMsg = error?.error?.message || error?.error?.error || error.message;
+      this.addLog(`Erreur serveur (${error?.status ?? '?'}) : ${serverMsg}`, 'error');
       this.messageService.add({
         severity: 'error',
-        summary: 'Erreur Serveur',
-        detail: 'Injection interrompue',
+        summary: 'Import interrompu',
+        detail: serverMsg,
       });
       this.isProcessing = false;
     }
@@ -112,12 +122,12 @@ export class DisastersComponent {
   resetETL() {
     if (this.previewData.length > 0) {
       this.confirmationService.confirm({
-        header: 'Réinitialisation',
-        message: 'Effacer toutes les données chargées ?',
-        icon: 'pi pi-trash',
-        acceptLabel: 'Oui, effacer',
-        rejectLabel: 'Garder',
-        acceptButtonStyleClass: 'p-button-danger p-button-text',
+        header: 'Changer de fichier',
+        message: 'Le fichier chargé et son aperçu seront retirés.',
+        icon: 'pi pi-info-circle',
+        acceptLabel: 'Continuer',
+        rejectLabel: 'Annuler',
+        rejectButtonStyleClass: 'p-button-secondary p-button-text',
         accept: () => this.executeReset(),
       });
     } else {
@@ -132,11 +142,6 @@ export class DisastersComponent {
     this.progress = 0;
     this.isProcessing = false;
     if (this.fileInput) this.fileInput.nativeElement.value = '';
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Réinitialisé',
-      detail: 'Terminal prêt',
-    });
   }
 
   onDragOver(event: DragEvent) {
@@ -174,24 +179,16 @@ export class DisastersComponent {
     }
 
     this.fileName = file.name;
-    this.logs = []; 
+    this.logs = [];
     this.isProcessing = true;
-    this.addLog(`Fichier détecté : ${file.name}`, 'info');
 
     try {
       this.previewData = await this.etlService.processExcelImport(file);
-      this.addLog(`Transformation réussie : ${this.previewData.length} lignes prêtes.`, 'success');
-      this.messageService.add({ 
-        severity: 'success', 
-        summary: 'UNOFIVE ETL', 
-        detail: 'Données transformées avec succès' 
-      });
     } catch (error: any) {
-      this.addLog(`Erreur : ${error}`, 'error');
-      this.messageService.add({ 
-        severity: 'error', 
-        summary: 'Erreur Format', 
-        detail: 'Le fichier Excel est invalide' 
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Fichier illisible',
+        detail: String(error)
       });
       this.fileName = '';
     } finally {

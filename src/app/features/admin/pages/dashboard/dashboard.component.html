@@ -1,1 +1,47 @@
-<p>dashboard works!</p>
+<div class="p-6 lg:p-8 max-w-5xl mx-auto space-y-8">
+
+  <header>
+    <h1 class="text-2xl font-semibold text-slate-900">Tableau de bord</h1>
+    <p class="text-sm text-slate-500 mt-1">Bonjour {{ userInfo?.nom }}. Gérez ici les données et les comptes de la plateforme.</p>
+  </header>
+
+  <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-white rounded-lg border border-slate-200 p-5">
+      <p class="text-sm text-slate-500">Utilisateurs</p>
+      <p class="text-3xl font-semibold text-slate-900 mt-2 tabular-nums">
+        <span *ngIf="!loading">{{ stats.users }}</span>
+        <span *ngIf="loading" class="inline-block w-10 h-7 bg-slate-100 rounded align-middle"></span>
+      </p>
+    </div>
+
+    <div class="bg-white rounded-lg border border-slate-200 p-5">
+      <p class="text-sm text-slate-500">Pays en base</p>
+      <p class="text-3xl font-semibold text-slate-900 mt-2 tabular-nums">
+        <span *ngIf="!loading">{{ stats.countries }}</span>
+        <span *ngIf="loading" class="inline-block w-10 h-7 bg-slate-100 rounded align-middle"></span>
+      </p>
+    </div>
+
+    <div class="bg-white rounded-lg border border-slate-200 p-5">
+      <p class="text-sm text-slate-500">Période couverte (EM-DAT)</p>
+      <p class="text-3xl font-semibold text-slate-900 mt-2 tabular-nums">2000-2026</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="text-base font-semibold text-slate-900 mb-3">Gestion</h2>
+    <div class="bg-white rounded-lg border border-slate-200 divide-y divide-slate-200">
+      <a *ngFor="let m of modules"
+         [routerLink]="m.link"
+         class="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors">
+        <mat-icon class="text-slate-500 shrink-0">{{ m.icon }}</mat-icon>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-slate-900">{{ m.label }}</p>
+          <p class="text-sm text-slate-500">{{ m.description }}</p>
+        </div>
+        <mat-icon class="text-slate-400 shrink-0">chevron_right</mat-icon>
+      </a>
+    </div>
+  </section>
+
+</div>

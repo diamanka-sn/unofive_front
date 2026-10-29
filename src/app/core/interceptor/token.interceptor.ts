@@ -1,12 +1,13 @@
 // token.interceptor.ts
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { Observable, catchError, throwError } from 'rxjs';
 import { AuthService } from './../services/auth.service';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.authService.getToken();
@@ -17,6 +18,15 @@ export class TokenInterceptor implements HttpInterceptor {
         }
       });
     }
-    return next.handle(request);
+    return next.handle(request).pipe(
+      catchError((error: HttpErrorResponse) => {
+        // Jeton expiré ou invalide : on purge la session et on renvoie vers la connexion
+        if (error.status === 401 && token) {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 }

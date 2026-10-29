@@ -1,0 +1,185 @@
+<div class="min-h-screen bg-slate-50 text-slate-800">
+
+  <section class="bg-white border-b border-slate-200 pt-20 pb-10 px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-sm text-slate-500">Déclaration d'accessibilité</p>
+      <h1 class="text-3xl font-semibold text-slate-900 mt-1">Accessibilité : non conforme</h1>
+      <p class="text-slate-600 mt-3 max-w-2xl leading-relaxed">
+        UnoFive s'engage à rendre sa plateforme accessible au plus grand nombre, y compris aux personnes en situation
+        de handicap qui naviguent avec ou sans technologie d'assistance (lecteur d'écran, clavier seul, zoom…).
+      </p>
+      <p class="text-sm text-slate-500 mt-4">Déclaration établie le {{ declarationDate }}</p>
+    </div>
+  </section>
+
+  <main class="max-w-6xl mx-auto px-6 lg:px-8 py-10 grid lg:grid-cols-12 gap-10">
+
+    <aside class="hidden lg:block lg:col-span-3 min-w-0">
+      <nav class="lg:sticky lg:top-24 text-sm" aria-label="Sommaire">
+        <p class="font-medium text-slate-900 mb-2">Sur cette page</p>
+        <ul class="space-y-1.5">
+          <li *ngFor="let item of toc">
+            <button (click)="scrollTo(item.id)" class="text-left text-slate-600 hover:text-slate-900 cursor-pointer">{{ item.label }}</button>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="lg:col-span-9 max-w-3xl space-y-12 leading-relaxed min-w-0">
+
+      <!-- État de conformité -->
+      <section id="etat" class="scroll-mt-24 space-y-4">
+        <h2 class="text-xl font-semibold text-slate-900">État de conformité</h2>
+        <p>
+          La plateforme UnoFive <strong>n'est pas conforme</strong> au référentiel général d'amélioration de
+          l'accessibilité (RGAA), version 4.1.2, ni aux règles internationales WCAG 2.1 (niveau AA) sur lesquelles il s'appuie.
+        </p>
+        <div class="bg-white rounded-lg border border-slate-200 p-5 text-sm space-y-2">
+          <p class="font-medium text-slate-900">Résultats des tests</p>
+          <p class="text-slate-600">
+            Aucun audit de conformité n'a encore été réalisé par un organisme externe. Il n'est donc pas possible
+            d'indiquer un taux de conformité. Une vérification interne a été menée et les défauts relevés ont été
+            corrigés. Un audit sera mené avant toute mise en service publique.
+          </p>
+        </div>
+      </section>
+
+      <!-- Non-conformités -->
+      <!-- Affichée seulement s'il reste des défauts connus -->
+      <section *ngIf="nonConformities.length" id="non-conformites" class="scroll-mt-24 space-y-4">
+        <h2 class="text-xl font-semibold text-slate-900">Contenus non accessibles</h2>
+        <p>Les défauts suivants peuvent gêner les utilisateurs en situation de handicap. Ils sont en cours de correction :</p>
+        <ul class="bg-white rounded-lg border border-slate-200 divide-y divide-slate-100">
+          <li *ngFor="let item of nonConformities" class="flex gap-3 px-4 py-3 text-sm">
+            <mat-icon class="text-amber-600 shrink-0 !text-xl !w-5 !h-5" aria-hidden="true">error_outline</mat-icon>
+            <span class="text-slate-700">{{ item }}</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Exemptions -->
+      <section id="exemptions" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl font-semibold text-slate-900">Contenus non soumis à l'obligation d'accessibilité</h2>
+        <p>Les contenus de tiers, que UnoFive ne produit pas et ne contrôle pas :</p>
+        <ul class="list-disc pl-5 space-y-1.5 text-slate-700">
+          <li>les fonds de carte (OpenStreetMap, Esri) et leurs libellés ;</li>
+          <li>les données de la base EM-DAT (CRED / UCLouvain), reprises telles qu'elles sont publiées.</li>
+        </ul>
+      </section>
+
+      <!-- Alternatives -->
+      <section id="alternatives" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl font-semibold text-slate-900">Alternatives accessibles</h2>
+        <p>Les informations de la carte sont aussi disponibles sans souris et sans dépendre des couleurs :</p>
+        <ul class="list-disc pl-5 space-y-1.5 text-slate-700">
+          <li>
+            <strong>Liste des pays</strong> : sur la carte, le bouton « Liste des pays » du panneau de filtres affiche un tableau
+            de tous les pays avec leur nombre de décès. Chaque nom ouvre la fiche du pays.
+          </li>
+          <li>
+            <strong>Déplacer la carte au clavier</strong> : une fois la carte sélectionnée avec <kbd class="text-xs border border-slate-300 rounded px-1">Tab</kbd>,
+            les flèches la déplacent et <kbd class="text-xs border border-slate-300 rounded px-1">+</kbd> / <kbd class="text-xs border border-slate-300 rounded px-1">-</kbd> zooment.
+          </li>
+          <li>
+            <strong>Ouvrir la fiche d'un pays au clavier</strong> : appuyez sur <kbd class="text-xs border border-slate-300 rounded px-1">Ctrl</kbd> + <kbd class="text-xs border border-slate-300 rounded px-1">K</kbd>,
+            tapez le nom du pays puis <kbd class="text-xs border border-slate-300 rounded px-1">Entrée</kbd>. La fiche affiche tous les chiffres en texte.
+          </li>
+          <li>
+            <strong>Obtenir les données brutes</strong> : la <a routerLink="/api" class="underline underline-offset-2 text-slate-900">documentation de l'API</a>
+            explique comment récupérer toutes les catastrophes au format JSON.
+          </li>
+        </ul>
+      </section>
+
+      <!-- Établissement -->
+      <section id="etablissement" class="scroll-mt-24 space-y-4">
+        <h2 class="text-xl font-semibold text-slate-900">Établissement de cette déclaration</h2>
+        <p>Cette déclaration a été établie le {{ declarationDate }}.</p>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="bg-white rounded-lg border border-slate-200 p-5">
+            <h3 class="text-sm font-medium text-slate-900 mb-2">Technologies utilisées</h3>
+            <ul class="text-sm text-slate-600 space-y-1">
+              <li>HTML5, CSS (Tailwind CSS)</li>
+              <li>TypeScript / JavaScript</li>
+              <li>Angular, Angular Material, PrimeNG</li>
+              <li>OpenLayers (cartographie), Chart.js (graphiques)</li>
+            </ul>
+          </div>
+          <div class="bg-white rounded-lg border border-slate-200 p-5">
+            <h3 class="text-sm font-medium text-slate-900 mb-2">Vérifications réalisées</h3>
+            <ul class="text-sm text-slate-600 space-y-1">
+              <li>Navigateur : Chrome</li>
+              <li>Affichage testé à 375, 768 et 1 100 px de large</li>
+              <li>Inspecteur du navigateur, lecture du code source</li>
+              <li>Pas encore de test avec lecteur d'écran (NVDA)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pages -->
+      <section id="pages" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl font-semibold text-slate-900">Pages concernées par cette déclaration</h2>
+        <ul class="bg-white rounded-lg border border-slate-200 divide-y divide-slate-100 text-sm">
+          <li *ngFor="let p of pages" class="flex justify-between gap-4 px-4 py-2.5">
+            <a [routerLink]="p.route" class="text-slate-900 underline underline-offset-2">{{ p.label }}</a>
+            <span class="text-slate-500 font-mono text-xs">{{ p.route }}</span>
+          </li>
+        </ul>
+        <p class="text-sm text-slate-500">L'espace d'administration, réservé à l'équipe, n'est pas couvert par cette déclaration.</p>
+      </section>
+
+      <!-- Contact -->
+      <section id="contact" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl font-semibold text-slate-900">Retour d'information et contact</h2>
+        <p>
+          Si vous n'arrivez pas à accéder à un contenu ou à un service, écrivez-nous : nous vous orienterons vers une
+          alternative accessible ou vous fournirons le contenu sous une autre forme. Nous répondons sous 30 jours au maximum.
+        </p>
+        <a href="mailto:contact@unofive.com?subject=Accessibilit%C3%A9"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md text-sm font-medium hover:bg-slate-700 transition-colors">
+          <mat-icon class="!text-lg !w-5 !h-5" aria-hidden="true">mail</mat-icon> Signaler un problème d'accessibilité
+        </a>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="bg-slate-900 pt-12 pb-8">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8">
+      <div class="grid md:grid-cols-4 gap-10 mb-10">
+        <div class="md:col-span-2">
+          <div class="flex items-center mb-3">
+            <img src="/logo.png" width="36" class="brightness-0 invert" alt="">
+            <span class="text-lg font-semibold text-white ml-2">UnoFive</span>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed max-w-xs">
+            Plateforme d'analyse des catastrophes en Afrique, de 2000 à 2026.
+          </p>
+        </div>
+        <div>
+          <p class="text-white text-sm font-medium mb-3">Plateforme</p>
+          <ul class="text-slate-400 text-sm space-y-2">
+            <li><a routerLink="/map" class="hover:text-white transition-colors">Carte interactive</a></li>
+            <li><a routerLink="/api" class="hover:text-white transition-colors">Documentation de l'API</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-white text-sm font-medium mb-3">Contact</p>
+          <ul class="text-slate-400 text-sm space-y-2">
+            <li>contact&#64;unofive.com</li>
+          </ul>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-slate-400">
+        <p>© 2025 UnoFive. Tous droits réservés.</p>
+        <div class="flex gap-6">
+          <a routerLink="/confidentialite" class="hover:text-white">Confidentialité</a>
+          <a routerLink="/accessibilite" class="text-white" aria-current="page">Accessibilité</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>

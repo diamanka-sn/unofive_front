@@ -1,4 +1,5 @@
 <div class="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-slate-100">
+  <h1 class="sr-only">Carte interactive des catastrophes en Afrique</h1>
   <!-- <div class="absolute top-4 right-4 z-[1000] flex bg-white p-1 rounded-xl shadow-2xl border border-slate-200">
   <input [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" 
          placeholder="Chercher un pays..." 
@@ -8,10 +9,10 @@
   </button>
 </div> -->
   <div [class.hidden]="isPrinting"
-    class="absolute top-20 left-4 z-[1000] bg-white/90 backdrop-blur-md p-3 rounded-xl shadow-xl border border-slate-200 w-56">
+    class="absolute top-3 left-3 sm:top-20 sm:left-4 z-[1000] bg-white/90 backdrop-blur-md p-3 rounded-xl shadow-xl border border-slate-200 w-48 sm:w-56">
     <div class="flex items-center gap-2 mb-3">
       <mat-icon class="text-slate-400 !text-sm w-4 h-4">filter_alt</mat-icon>
-      <span class="font-bold text-slate-500 uppercase text-[10px] tracking-tight">Filtres</span>
+      <span class="text-xs font-medium text-slate-600">Filtres</span>
     </div>
 
     <div class="space-y-3">
@@ -31,21 +32,52 @@
           <mat-select [(ngModel)]="selectedDisaster" (selectionChange)="applyFilters()"
             class="text-xs font-bold text-slate-700 py-1.5">
             <mat-option value="all" class="!text-xs">Tous les risques</mat-option>
-            <mat-option *ngFor="let type of disasterTypes" [value]="type.id" class="!text-xs">
-              {{ type.label }}
-            </mat-option>
+            <mat-optgroup *ngFor="let group of disasterTypeGroups" [label]="group.label">
+              <mat-option *ngFor="let type of group.types" [value]="type.id" class="!text-xs">
+                {{ type.label }}
+              </mat-option>
+            </mat-optgroup>
           </mat-select>
         </div>
       </div>
     </div>
-
-    <div class="mt-2 pt-2 border-t border-slate-100 flex items-center gap-2">
-      <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-      <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">EM-DAT Data</span>
-    </div>
+    <button type="button" (click)="countryListVisible = true"
+            class="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs text-slate-700 border border-slate-300 rounded-md bg-white hover:bg-slate-50 cursor-pointer">
+      <mat-icon aria-hidden="true">list</mat-icon> Liste des pays
+    </button>
   </div>
+
+  <!-- Liste des pays : accès clavier à toutes les fiches et valeurs en texte (alternative à la carte et à ses couleurs) -->
+  <p-drawer [(visible)]="countryListVisible" position="left" header="Liste des pays" (onShow)="focusCountryList()">
+    <p class="text-sm text-slate-600 mb-3">
+      Nombre de décès · {{ filterLabel }} · {{ yearLabel }}. Choisissez un pays pour afficher sa fiche.
+    </p>
+    <table class="w-full text-sm">
+      <caption class="sr-only">Nombre de décès par pays, {{ filterLabel }}, {{ yearLabel }}</caption>
+      <thead class="text-slate-600 border-b border-slate-200">
+        <tr>
+          <th scope="col" class="text-left font-medium py-2">Pays</th>
+          <th scope="col" class="text-right font-medium py-2">Décès</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr *ngFor="let c of countryList; trackBy: trackByFid">
+          <th scope="row" class="text-left font-normal py-1.5">
+            <button type="button" (click)="selectFromList(c.fid)"
+                    class="flex items-center gap-2 text-left text-slate-900 hover:underline underline-offset-2 cursor-pointer">
+              <span class="w-3 h-3 shrink-0 border border-slate-300" [style.background-color]="c.color" aria-hidden="true"></span>
+              {{ c.name }}
+            </button>
+          </th>
+          <td class="text-right tabular-nums py-1.5">{{ c.deaths | number }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </p-drawer>
+
   <div [class.hidden]="isPrinting" class="absolute bottom-6 right-4 z-[1000] flex flex-col gap-1.5">
-    <button (click)="openPrintDialog()" title="Imprimer" class="map-btn cursor-pointer mb-1">
+    <button (click)="openPrintDialog()" [disabled]="isPrinting" title="Imprimer la carte" aria-label="Imprimer la carte"
+            class="map-btn cursor-pointer mb-1 disabled:opacity-50 disabled:cursor-wait">
       <mat-icon>print</mat-icon>
     </button>
 
@@ -72,139 +104,188 @@
   <ng-template pTemplate="header">
     <div class="flex items-center gap-3">
     
-      <span class="font-bold text-slate-800 text-lg uppercase tracking-tight">{{selectedCountry?.name}}</span>
+      <h2 id="fiche-titre" tabindex="-1" class="text-xl font-semibold text-slate-900 outline-none">{{ selectedCountry?.name }}</h2>
     </div>
   </ng-template>
 
-  <div class="py-4 space-y-6" *ngIf="selectedCountryStats as s">
-    
-    <div class="grid grid-cols-2 gap-4">
-      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Événements</p>
-        <p class="text-2xl font-black text-slate-800">{{s.overview.total_events}}</p>
-      </div>
-      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Risque Majeur</p>
-        <p class="text-sm font-bold text-indigo-600 truncate">{{s.overview.dominant_type}}</p>
-      </div>
-      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Fréquence</p>
-        <p class="text-sm font-bold text-red-600 truncate">{{s.overview.annual_frequency}}</p>
-      </div>
-      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Durée moyenne</p>
-        <p class="text-sm font-bold text-amber-600 truncate">{{s.overview.avg_duration}}</p>
-      </div>
-    </div>
+  <div class="py-2 space-y-7 text-slate-800" *ngIf="selectedCountryStats as s">
+    <p class="text-sm text-slate-500">Bilan des catastrophes enregistrées de 2000 à 2026 (source : EM-DAT).</p>
 
-    <section>
-      <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-1">Économie</h4>
-      <div class="p-5 bg-amber-500 rounded-2xl text-white shadow-sm">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-xs font-medium opacity-90">Pertes cumulées (USD)</span>
-          <mat-icon class="text-sm opacity-50">payments</mat-icon>
-        </div>
-        <p class="text-3xl font-black mb-3">${{s.overview.total_damage | number}}</p>
-        <div class="text-[10px] flex justify-between border-t border-white/20 pt-2">
-          <span class="opacity-80 uppercase">Indice CPI Moyen</span>
-          <span class="font-bold">{{s.overview.avg_cpi | number:'1.1-1'}}</span>
-        </div>
+    <!-- Chiffres clés -->
+    <section class="grid grid-cols-2 gap-3">
+      <div class="p-4 rounded-lg border border-slate-200">
+        <p class="text-sm text-slate-500">Catastrophes</p>
+        <p class="text-2xl font-semibold text-slate-900 mt-1 tabular-nums">{{ s.overview.total_events | number }}</p>
+      </div>
+      <div class="p-4 rounded-lg border border-slate-200">
+        <p class="text-sm text-slate-500">Type le plus fréquent</p>
+        <p class="text-base font-semibold text-slate-900 mt-1">{{ typeFr(s.overview.dominant_type) }}</p>
+      </div>
+      <div class="p-4 rounded-lg border border-slate-200">
+        <p class="text-sm text-slate-500">Fréquence moyenne</p>
+        <p class="text-base font-semibold text-slate-900 mt-1">{{ +s.overview.annual_frequency | number: '1.0-1' }} par an</p>
+      </div>
+      <div class="p-4 rounded-lg border border-slate-200">
+        <p class="text-sm text-slate-500">Durée moyenne</p>
+        <p class="text-base font-semibold text-slate-900 mt-1">{{ +s.overview.avg_duration | number: '1.0-0' }} jours</p>
       </div>
     </section>
 
+    <!-- Bilan humain -->
     <section>
-      <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-1">Bilan Humain (depuis 2000)</h4>
+      <h3 class="text-base font-semibold text-slate-900 mb-2">Bilan humain</h3>
+      <dl class="rounded-lg border border-slate-200 divide-y divide-slate-100 text-sm">
+        <div class="flex justify-between px-4 py-2.5">
+          <dt class="text-slate-600">Décès</dt>
+          <dd class="font-semibold text-slate-900 tabular-nums">{{ s.overview.total_deaths | number }}</dd>
+        </div>
+        <div class="flex justify-between px-4 py-2.5">
+          <dt class="text-slate-600">Blessés</dt>
+          <dd class="font-semibold text-slate-900 tabular-nums">{{ s.vulnerability.total_injured | number }}</dd>
+        </div>
+        <div class="flex justify-between px-4 py-2.5">
+          <dt class="text-slate-600">Sans-abri</dt>
+          <dd class="font-semibold text-slate-900 tabular-nums">{{ s.vulnerability.total_homeless | number }}</dd>
+        </div>
+        <div class="flex justify-between px-4 py-2.5">
+          <dt class="text-slate-600">Personnes touchées au total</dt>
+          <dd class="font-semibold text-slate-900 tabular-nums">{{ s.vulnerability.total_affected | number }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Dégâts économiques (EM-DAT les compte en milliers de dollars) -->
+    <section>
+      <h3 class="text-base font-semibold text-slate-900 mb-2">Dégâts économiques</h3>
+      <div class="rounded-lg border border-slate-200 p-4">
+        <p *ngIf="s.overview.total_damage > 0" class="text-2xl font-semibold text-slate-900 tabular-nums">
+          {{ s.overview.total_damage / 1000 | number: '1.0-1' }} millions $
+        </p>
+        <p *ngIf="!s.overview.total_damage" class="text-sm text-slate-600">Non renseignés dans EM-DAT pour ce pays.</p>
+        <p class="text-sm text-slate-500 mt-1">Montant cumulé déclaré, en dollars US de l'époque.</p>
+      </div>
+    </section>
+
+    <!-- Répartition par famille -->
+    <section *ngIf="s.vulnerability.subgroups?.length">
+      <h3 class="text-base font-semibold text-slate-900 mb-2">Répartition par famille</h3>
+      <ul class="rounded-lg border border-slate-200 divide-y divide-slate-100">
+        <li *ngFor="let item of sortedSubgroups" class="flex items-center gap-3 px-4 py-2.5">
+          <span class="w-8 h-8 rounded-md flex items-center justify-center shrink-0" [ngClass]="subgroupFr(item.subgroup).color">
+            <mat-icon class="!text-lg !w-5 !h-5">{{ subgroupFr(item.subgroup).icon }}</mat-icon>
+          </span>
+          <span class="flex-1 text-sm text-slate-700">{{ subgroupFr(item.subgroup).label }}</span>
+          <span class="text-sm font-semibold text-slate-900 tabular-nums">{{ item.count }}</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Répartition par type : tous les types survenus, naturels et technologiques -->
+    <section *ngIf="typeBreakdown.length">
+      <h3 class="text-base font-semibold text-slate-900 mb-2">Répartition par type</h3>
       <div class="space-y-3">
-        <div class="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl shadow-sm">
-          <div class="flex items-center gap-3">
-            <div class="w-2 h-2 rounded-full bg-red-500"></div>
-            <span class="text-sm font-medium text-slate-600">Nombre de décès</span>
-          </div>
-          <span class="font-bold text-slate-900">{{s.overview.total_deaths | number}}</span>
-        </div>
-        <div class="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl shadow-sm">
-          <div class="flex items-center gap-3">
-            <div class="w-2 h-2 rounded-full bg-amber-400"></div>
-            <span class="text-sm font-medium text-slate-600">Personnes affectées</span>
-          </div>
-          <span class="font-bold text-slate-900">{{s.vulnerability.total_affected | number}}</span>
-        </div>
-        <div class="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl shadow-sm">
-          <div class="flex items-center gap-3">
-            <div class="w-2 h-2 rounded-full bg-slate-400"></div>
-            <span class="text-sm font-medium text-slate-600">Personnes sans-abris</span>
-          </div>
-          <span class="font-bold text-slate-900">{{s.vulnerability.total_homeless | number}}</span>
+        <div *ngFor="let group of typeBreakdown">
+          <h4 class="text-sm text-slate-600 mb-1.5">{{ group.label }}</h4>
+          <table class="w-full text-sm rounded-lg border border-slate-200">
+            <caption class="sr-only">Catastrophes {{ group.label | lowercase }} : nombre d'événements et de décès par type</caption>
+            <thead class="bg-slate-50 text-slate-600">
+              <tr>
+                <th scope="col" class="text-left font-medium px-3 py-2">Type</th>
+                <th scope="col" class="text-right font-medium px-3 py-2">Événements</th>
+                <th scope="col" class="text-right font-medium px-3 py-2">Décès</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr *ngFor="let t of group.items">
+                <th scope="row" class="text-left font-normal px-3 py-2">
+                  <span class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 rounded-md flex items-center justify-center shrink-0"
+                          [style.backgroundColor]="t.color + '15'" [style.color]="t.color" aria-hidden="true">
+                      <mat-icon class="!text-base !w-4 !h-4">{{ t.icon }}</mat-icon>
+                    </span>
+                    <span class="text-slate-700">{{ t.label }}</span>
+                  </span>
+                </th>
+                <td class="text-right tabular-nums px-3 py-2 text-slate-900">{{ t.count | number }}</td>
+                <td class="text-right tabular-nums px-3 py-2 text-slate-900">{{ t.deaths | number }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
-<section>
-  <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 ml-1">Types des Catastrophes</h4>
-  
-  <div class="grid grid-cols-2 gap-3">
-    <div *ngFor="let item of s.vulnerability.subgroups" 
-         class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:border-indigo-200 transition-all group">
-      
-      <div class="p-2 rounded-lg" 
-           [ngClass]="{
-             'bg-blue-50 text-blue-600': item.subgroup === 'Hydrological',
-             'bg-emerald-50 text-emerald-600': item.subgroup === 'Biological',
-             'bg-amber-50 text-amber-600': item.subgroup === 'Meteorological',
-             'bg-orange-50 text-orange-600': item.subgroup === 'Climatological'
-           }">
-        <mat-icon class="text-sm">
-          {{ item.subgroup === 'Hydrological' ? 'water_drop' : 
-             item.subgroup === 'Biological' ? 'coronavirus' : 
-             item.subgroup === 'Meteorological' ? 'cloud' : 'wb_sunny' }}
-        </mat-icon>
+
+    <!-- Évolution -->
+    <section>
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+        <h3 class="text-base font-semibold text-slate-900">Évolution année par année</h3>
+        <div class="inline-flex rounded-md border border-slate-300 p-0.5 bg-slate-50" role="tablist" aria-label="Indicateur affiché">
+          <button *ngFor="let m of chartMetrics" type="button" role="tab"
+                  [attr.aria-selected]="chartMetric === m.id"
+                  (click)="setChartMetric(m.id)"
+                  class="px-3 py-1 text-sm rounded cursor-pointer transition-colors"
+                  [ngClass]="chartMetric === m.id ? 'bg-white text-slate-900 shadow-sm font-medium' : 'text-slate-600 hover:text-slate-900'">
+            {{ m.label }}
+          </button>
+        </div>
+      </div>
+      <p *ngIf="chartMetric === 'damage'" class="text-xs text-slate-500 mb-2">Une année sans barre signifie souvent que les dégâts n'ont pas été déclarés.</p>
+      <div class="rounded-lg border border-slate-200 p-3">
+        <div style="position: relative; height: 250px; width: 100%">
+          <!-- Alternative courte (RGAA 1.2 / 1.3) : résumé lu par les lecteurs d'écran -->
+          <canvas #statsChart role="img"
+                  [attr.aria-label]="chartMetric === 'deaths' ? chartSummary.deaths : chartSummary.damage"
+                  aria-describedby="chart-data-table"></canvas>
+        </div>
       </div>
 
-      <div class="flex flex-col">
-        <span class="text-[10px] font-black text-slate-400 uppercase leading-none">{{item.subgroup}}</span>
-        <span class="text-lg font-black text-slate-800 tracking-tighter">{{item.count}}</span>
-      </div>
-    </div>
-  </div>
-</section>
-<div *ngIf="selectedCountryStats" class="stats-content">
-  <div class="chart-box mt-4 p-4 bg-slate-800 rounded-xl">
-    <h3 class="text-sm font-semibold mb-2 text-white">Évolution Historique</h3>
-    <div style="position: relative; height:250px; width:100%">
-      <canvas #statsChart></canvas>
-    </div>
-  </div>
-</div>
+      <!-- Alternative détaillée (RGAA 1.6) : toutes les valeurs du graphique -->
+      <details id="chart-data-table" class="mt-3 group">
+        <summary class="cursor-pointer text-sm text-slate-700 hover:text-slate-900 select-none list-none flex items-center gap-1">
+          <mat-icon class="!text-lg !w-5 !h-5 transition-transform group-open:rotate-90" aria-hidden="true">chevron_right</mat-icon>
+          Voir les données en tableau
+        </summary>
+        <div class="mt-2 max-h-72 overflow-y-auto rounded-md border border-slate-200">
+          <table class="w-full text-sm">
+            <caption class="sr-only">Décès et dégâts par année pour {{ selectedCountry?.name }}</caption>
+            <thead class="bg-slate-50 text-slate-600 sticky top-0">
+              <tr>
+                <th scope="col" class="px-3 py-2 text-left font-medium">Année</th>
+                <th scope="col" class="px-3 py-2 text-right font-medium">Décès</th>
+                <th scope="col" class="px-3 py-2 text-right font-medium">Dégâts (millions $)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr *ngFor="let row of chartRows">
+                <th scope="row" class="px-3 py-1.5 text-left font-normal tabular-nums">{{ row.year }}</th>
+                <td class="px-3 py-1.5 text-right tabular-nums">{{ row.deaths | number }}</td>
+                <td class="px-3 py-1.5 text-right tabular-nums">{{ row.damage > 0 ? (row.damage | number: '1.0-1') : 'Non renseigné' }}</td>
+              </tr>
+              <tr *ngIf="!chartRows.length">
+                <td colspan="3" class="px-3 py-3 text-center text-slate-500">Aucune donnée pour ce pays.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </section>
   </div>
 </p-drawer>
-  <div id="print-header" [class.hidden]="!isPrinting">
-    <div class="flex justify-between items-end border-b-2 border-amber-500 pb-2">
-      <div>
-        <h1 class="text-2xl font-black text-slate-900">{{ reportTitle }}</h1>
-        <p class="text-sm text-slate-600">{{ reportDescription }}</p>
-      </div>
-      <div class="text-right">
-        <span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Rapport Cartographique</span>
-      </div>
-    </div>
+  <div id="map" class="h-full w-full z-0" tabindex="0" role="region"
+       aria-label="Carte des décès par pays. Flèches pour se déplacer, + et - pour zoomer. La liste des pays est accessible depuis le panneau de filtres."></div>
+
+  <!-- Position gérée directement par positionTooltip(), hors d'Angular -->
+  <div #mapTooltip role="tooltip" [hidden]="!tooltip"
+       class="absolute z-[1000] pointer-events-none px-3 py-2 rounded-md bg-slate-900/95 text-white shadow-lg whitespace-nowrap">
+    <p class="text-sm font-semibold">{{ tooltip?.name }}</p>
+    <p class="text-xs text-slate-300">
+      {{ tooltip?.deaths | number }} décès · {{ filterLabel }} · {{ yearLabel }}
+    </p>
   </div>
-  <div id="map" class="h-full w-full z-0"></div>
-  <div id="print-footer" [class.hidden]="!isPrinting">
-    <div class="flex items-center justify-between pt-4 border-t border-slate-200">
-      <div class="flex items-center">
-        <img src="/logo.png" width="40" alt="Logo">
-        <h5 class="text-lg font-black text-slate-900 tracking-tight ml-2">
-          UNO<span class="text-amber-500 font-light">FIVE</span>
-        </h5>
-      </div>
-      <div class="text-[10px] text-slate-400 font-medium">
-        Généré le {{ today | date:'dd/MM/yyyy HH:mm' }} | Données EM-DAT
-      </div>
-    </div>
-  </div>
-  <div class="map-legend">
+  <div class="map-legend" aria-label="Légende">
     <div class="legend-header">
-      <mat-icon class="!text-[12px] text-amber-600">person_off</mat-icon>
-      <span>Décès</span>
+      <span class="legend-title">Nombre de décès</span>
+      <span class="legend-subtitle">{{ filterLabel }} · {{ yearLabel }}</span>
     </div>
 
     <div class="legend-body">
@@ -214,8 +295,8 @@
       </div>
 
       <div class="legend-item separator">
-        <span class="color-box bg-amber-500/20 border border-amber-400/50"></span>
-        <span class="label">0 / N.A</span>
+        <span class="color-box" [style.background-color]="noDeathColor"></span>
+        <span class="label">Aucun décès</span>
       </div>
     </div>
   </div>

@@ -11,6 +11,8 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { TokenInterceptor } from './core/interceptor/token.interceptor';
+import { TitleStrategy } from '@angular/router';
+import { PageTitleStrategy } from './core/page-title.strategy';
 import localeFr from '@angular/common/locales/fr';
 import { registerLocaleData } from '@angular/common';
 
@@ -31,6 +33,7 @@ registerLocaleData(localeFr);
     MessageService,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
     { provide: LOCALE_ID, useValue: 'fr-FR' },
+    { provide: TitleStrategy, useClass: PageTitleStrategy },
     { provide: ConfirmationService },
      providePrimeNG({
             theme: {

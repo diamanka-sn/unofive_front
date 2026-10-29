@@ -1,59 +1,78 @@
 <div class="container w-full max-w-none">
-<header class="h-16 px-6 bg-white flex items-center justify-between border-b border-slate-100 sticky top-0 z-[1000]">
-  
-  <div class="flex items-center gap-2 cursor-pointer" routerLink="/">
-    <img src="/logo.png" class="w-12 h-auto" alt="Logo">
-    <h5 class="text-xl font-black text-slate-900 tracking-tighter">UNO<span class="text-amber-500 font-light">FIVE</span></h5>
+<!-- Lien d'évitement (RGAA 12.7) : premier élément atteint au clavier, visible seulement quand il a le focus -->
+<a href="#contenu" (click)="skipToContent($event)"
+   class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[2000] focus:px-4 focus:py-2 focus:bg-slate-900 focus:text-white focus:rounded-md">
+  Aller au contenu
+</a>
+
+<header class="h-16 px-3 sm:px-6 bg-white flex items-center justify-between border-b border-slate-100 sticky top-0 z-[1000]">
+
+  <div class="flex items-center gap-1 sm:gap-2">
+    <!-- Menu de navigation sur mobile et tablette (les liens ne s'affichent qu'à partir de 1024 px) -->
+    <button type="button" [matMenuTriggerFor]="navMenu" aria-label="Menu"
+            class="lg:hidden w-10 h-10 flex items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 cursor-pointer">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #navMenu="matMenu">
+      <a mat-menu-item *ngFor="let link of navLinks" [routerLink]="link.route"><mat-icon>{{ link.icon }}</mat-icon>{{ link.label }}</a>
+    </mat-menu>
+
+    <a routerLink="/" class="flex items-center gap-2" aria-label="UnoFive, retour à l'accueil">
+      <img src="/logo.png" class="w-9 sm:w-12 h-auto" alt="">
+      <span class="hidden sm:block text-xl font-black text-slate-900 tracking-tighter" aria-hidden="true">UNO<span class="text-amber-500 font-light">FIVE</span></span>
+    </a>
   </div>
 
-  <div class="hidden lg:flex flex-1 max-w-sm mx-8">
-    <div class="relative w-full group">
-      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-sm">search</mat-icon>
-      <input type="text" placeholder="Rechercher..." 
-             class="w-full pl-10 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-sm text-xs focus:ring-2 focus:ring-amber-500 outline-none transition-all">
-    </div>
+  <div class="flex-1 flex justify-end lg:justify-center mx-2 sm:mx-4 lg:mx-8">
+    <button type="button" (click)="openSearch()" aria-label="Rechercher (Ctrl+K)"
+            class="flex items-center gap-2 w-auto lg:w-full lg:max-w-sm px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-500 hover:border-slate-300 hover:bg-white transition-colors cursor-pointer">
+      <mat-icon class="!text-[20px] !leading-[20px] !w-5 !h-5 text-slate-400 shrink-0">search</mat-icon>
+      <span class="hidden lg:inline flex-1 text-left">Rechercher un pays, une page…</span>
+      <kbd class="hidden lg:inline text-xs text-slate-500 border border-slate-300 rounded px-1.5 py-0.5">Ctrl K</kbd>
+    </button>
   </div>
 
-  <div class="flex items-center gap-6">
-    <nav class="hidden xl:flex items-center gap-5">
-      <a *ngFor="let link of [{r:'', t:'Accueil'}, {r:'map', t:'Cartes'}, {r:'api', t:'API Docs'}]"
-         [routerLink]="link.r" routerLinkActive="text-amber-600"
-         class="text-[13px] font-bold text-slate-600 hover:text-amber-500 transition-colors uppercase tracking-tight">{{link.t}}</a>
+  <div class="flex items-center gap-3 sm:gap-6">
+    <nav class="hidden lg:flex items-center gap-5" aria-label="Navigation principale">
+      <a *ngFor="let link of navLinks"
+         [routerLink]="link.route" routerLinkActive="!text-amber-700" [routerLinkActiveOptions]="{ exact: link.route === '/' }"
+         ariaCurrentWhenActive="page"
+         class="text-sm text-slate-600 hover:text-slate-900 transition-colors">{{ link.label }}</a>
     </nav>
 
-    <div class="h-5 w-px bg-slate-200"></div>
+    <div class="hidden lg:block h-5 w-px bg-slate-200"></div>
 
     <div *ngIf="isLoggedIn; else notLoggedIn" class="flex items-center">
-      <button [matMenuTriggerFor]="m" class="flex items-center gap-2 p-1 hover:bg-slate-50 rounded-full transition-colors">
-        <div class="w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs font-black shadow-sm">{{ mesinitial }}</div>
+      <button [matMenuTriggerFor]="m" aria-label="Mon compte" class="flex items-center gap-1 p-1 hover:bg-slate-50 rounded-full transition-colors cursor-pointer">
+        <div class="w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs shadow-sm" aria-hidden="true">{{ mesinitial }}</div>
         <mat-icon class="text-slate-400 !text-lg">expand_more</mat-icon>
       </button>
 
       <mat-menu #m="matMenu" xPosition="before" class="rounded-xl shadow-xl border border-slate-100">
         <div class="px-4 py-3 border-b border-slate-50">
-          <p class="text-[9px] font-black text-amber-500 uppercase tracking-widest">{{ userInfo?.isAdmin ? 'Admin' : 'User' }}</p>
-          <p class="text-sm font-bold text-slate-900 truncate">{{ userInfo.nom }}</p>
+          <p class="text-xs text-slate-500">{{ userInfo?.isAdmin ? 'Administrateur' : 'Utilisateur' }}</p>
+          <p class="text-sm text-slate-900 truncate">{{ userInfo.nom }}</p>
         </div>
-        <button mat-menu-item *ngIf="userInfo?.isAdmin" routerLink="/admin" class="text-xs font-medium">
-          <mat-icon class="!text-sm">dashboard</mat-icon>Tableau de bord
+        <button mat-menu-item *ngIf="userInfo?.isAdmin" routerLink="/admin">
+          <mat-icon>dashboard</mat-icon>Tableau de bord
         </button>
-        <button mat-menu-item *ngIf="!userInfo?.isAdmin" class="text-xs font-medium">
-          <mat-icon class="!text-sm">star</mat-icon>Favoris
+        <button mat-menu-item routerLink="/profil">
+          <mat-icon>key</mat-icon>Mon profil et clé d'API
         </button>
-        <button mat-menu-item (click)="logout()" class="text-xs font-medium text-red-500">
-          <mat-icon class="text-red-500 !text-sm">logout</mat-icon>Déconnexion
+        <button mat-menu-item (click)="logout()" class="!text-red-600">
+          <mat-icon class="!text-red-600">logout</mat-icon>Déconnexion
         </button>
       </mat-menu>
     </div>
 
     <ng-template #notLoggedIn>
-      <button (click)="register()" class="px-5 py-2 bg-slate-900 text-white text-xs cursor-pointer font-black hover:bg-amber-500 transition-all shadow-md shadow-slate-200">
+      <a routerLink="/login" class="px-3 sm:px-4 py-2 bg-slate-900 text-white text-sm rounded-md cursor-pointer hover:bg-slate-700 transition-colors">
         Connexion
-      </button>
+      </a>
     </ng-template>
   </div>
 </header>
-  <div>
+  <main id="contenu" tabindex="-1" class="outline-none">
     <router-outlet></router-outlet>
-  </div>
+  </main>
 </div>

@@ -1,79 +1,60 @@
-<div class="flex flex-col h-screen overflow-hidden bg-slate-50">
-  <header class="h-16 px-6 bg-white flex items-center justify-between border-b border-slate-100 shrink-0 z-[1000]">
-    <div class="flex items-center gap-2 cursor-pointer" routerLink="/">
-      <img src="/logo.png" class="w-10 h-auto" alt="Logo">
-      <h5 class="text-xl font-black text-slate-900 tracking-tighter">UNO<span class="text-amber-500 font-light">FIVE</span></h5>
-    </div>
+<div class="flex flex-col h-screen overflow-hidden bg-slate-50 text-slate-800">
+  <header class="h-14 px-3 sm:px-6 bg-white flex items-center justify-between border-b border-slate-200 shrink-0 z-[1000]">
+    <a routerLink="/" class="flex items-center gap-2">
+      <img src="/logo.png" class="w-8 h-auto" alt="Logo">
+      <span class="text-lg font-bold text-slate-900">UnoFive</span>
+      <span class="hidden sm:inline text-sm text-slate-400 border-l border-slate-200 pl-2 ml-1">Administration</span>
+    </a>
 
-    <div class="flex items-center gap-6">
-      <div *ngIf="isLoggedIn" class="flex items-center">
-         <button [matMenuTriggerFor]="m" class="flex items-center cursor-pointer gap-2 p-1 hover:bg-slate-50 rounded-full transition-colors">
-        <div class="w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs font-black shadow-sm">{{ mesinitial }}</div>
+    <div *ngIf="isLoggedIn">
+      <button [matMenuTriggerFor]="m" class="flex items-center gap-2 py-1 pl-1 pr-2 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
+        <span class="w-8 h-8 bg-slate-800 text-white rounded-full flex items-center justify-center text-xs font-semibold">{{ mesinitial }}</span>
+        <span class="hidden sm:block text-sm text-slate-700">{{ userInfo?.nom }}</span>
         <mat-icon class="text-slate-400 !text-lg">expand_more</mat-icon>
       </button>
 
-      <mat-menu #m="matMenu" xPosition="before" class="rounded-xl shadow-xl border border-slate-100">
-        <div class="px-4 py-3 border-b border-slate-50">
-          <p class="text-[9px] font-black text-amber-500 uppercase tracking-widest">{{ userInfo?.isAdmin ? 'Admin' : 'User' }}</p>
-          <p class="text-sm font-bold text-slate-900 truncate">{{ userInfo.nom }}</p>
+      <mat-menu #m="matMenu" xPosition="before">
+        <div class="px-4 py-3 border-b border-slate-100">
+          <p class="text-sm font-semibold text-slate-900 truncate">{{ userInfo?.nom }}</p>
+          <p class="text-xs text-slate-500">{{ userInfo?.isAdmin ? 'Administrateur' : 'Utilisateur' }}</p>
         </div>
-       
-        <button mat-menu-item (click)="logout()" class="text-xs font-medium text-red-500">
-          <mat-icon class="text-red-500 !text-sm">logout</mat-icon>Déconnexion
+        <button mat-menu-item routerLink="/">
+          <mat-icon>map</mat-icon>Retour au site
+        </button>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon class="!text-red-600">logout</mat-icon><span class="text-red-600">Déconnexion</span>
         </button>
       </mat-menu>
-         </div>
     </div>
   </header>
 
+  <!-- Téléphone : navigation en onglets défilants à la place de la barre latérale -->
+  <nav *ngIf="userInfo?.isAdmin" class="md:hidden flex gap-1 overflow-x-auto bg-white border-b border-slate-200 px-2 py-2 shrink-0" aria-label="Administration">
+    <a *ngFor="let item of navItems"
+       [routerLink]="item.link"
+       routerLinkActive="!bg-slate-100 !text-slate-900 font-medium"
+       [routerLinkActiveOptions]="{ exact: item.exact }"
+       class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-slate-600 whitespace-nowrap">
+      <mat-icon class="!text-lg !w-5 !h-5 !leading-5 text-slate-500">{{ item.icon }}</mat-icon>
+      {{ item.label }}
+    </a>
+  </nav>
+
   <div class="flex flex-1 overflow-hidden">
-    <aside *ngIf="userInfo?.isAdmin" class="w-64 bg-white border-r border-slate-100 flex flex-col shrink-0">
-      <div class="p-6">
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Administration</p>
-        
-        <nav class="space-y-1">
-          <a routerLink="/admin" routerLinkActive="bg-amber-50 text-amber-600" 
-             class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all group">
-            <mat-icon class="!text-lg">dashboard</mat-icon>
-            Tableau de bord
-          </a>
-
-          <a routerLink="/admin/users" routerLinkActive="bg-amber-50 text-amber-600" 
-             class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-            <mat-icon class="!text-lg">people</mat-icon>
-            Utilisateurs
-          </a>
-
-          <a routerLink="/admin/disasters" routerLinkActive="bg-amber-50 text-amber-600" 
-             class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-            <mat-icon class="!text-lg">warning</mat-icon>
-            Catastrophes (EM-DAT)
-          </a>
-          <a routerLink="/admin/geo-data" routerLinkActive="bg-amber-50 text-amber-600" 
-             class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-            <mat-icon class="!text-lg">public</mat-icon>
-            GEO Data
-          </a>
-          <a routerLink="/admin/settings" routerLinkActive="bg-amber-50 text-amber-600" 
-             class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-            <mat-icon class="!text-lg">settings</mat-icon>
-            Configuration
-          </a>
-        </nav>
-      </div>
-
-      <div class="mt-auto p-6 border-t border-slate-50">
-        <div class="bg-slate-900 rounded-2xl p-4 text-white">
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Statut Serveur</p>
-          <div class="flex items-center gap-2 mt-1">
-            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-            <p class="text-xs font-medium">API Connectée</p>
-          </div>
-        </div>
-      </div>
+    <aside *ngIf="userInfo?.isAdmin" class="hidden md:block w-60 bg-white border-r border-slate-200 shrink-0 p-4">
+      <nav class="space-y-1">
+        <a *ngFor="let item of navItems"
+           [routerLink]="item.link"
+           routerLinkActive="!bg-slate-100 !text-slate-900 font-medium"
+           [routerLinkActiveOptions]="{ exact: item.exact }"
+           class="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+          <mat-icon class="!text-xl text-slate-500">{{ item.icon }}</mat-icon>
+          {{ item.label }}
+        </a>
+      </nav>
     </aside>
 
-    <main class="flex-1 overflow-y-auto relative bg-slate-50/50">
+    <main class="flex-1 overflow-y-auto">
       <router-outlet></router-outlet>
     </main>
   </div>

@@ -40,8 +40,8 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
       attributionControl: false
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 16,
     }).addTo(this.map);
   const capitalesCEDEAO = [
     { name: 'Nouakchott, Mauritanie', coords: [18.0848, -15.9785] },

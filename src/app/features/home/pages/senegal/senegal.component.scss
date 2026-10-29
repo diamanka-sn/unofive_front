@@ -1,0 +1,22 @@
+:host {
+  display: block;
+}
+
+.occsol-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  pointer-events: none;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #fff;
+  background: rgba(15, 23, 42, 0.9);
+  white-space: nowrap;
+}
+
+// Échelle en bas à gauche, au-dessus du fond de carte
+:host ::ng-deep .ol-scale-bar {
+  left: 12px;
+  bottom: 12px;
+}

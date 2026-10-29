@@ -15,6 +15,14 @@ export class PagesComponent {
     private unsubscribe$ = new Subject<void>();
     userInfo: any;
     mesinitial: any;
+    navItems = [
+      { label: 'Tableau de bord', icon: 'dashboard', link: '/admin', exact: true },
+      { label: 'Catastrophes', icon: 'warning_amber', link: '/admin/disasters', exact: false },
+      { label: 'Limites des pays', icon: 'public', link: '/admin/geo-data', exact: false },
+      { label: 'Occupation du sol', icon: 'layers', link: '/admin/occsol', exact: false },
+      { label: 'Utilisateurs', icon: 'group', link: '/admin/users', exact: false },
+      { label: 'Paramètres', icon: 'settings', link: '/admin/settings', exact: false },
+    ];
   constructor(private router: Router, private authService: AuthService) {}
  ngOnInit(): void {
     this.authService.authState$

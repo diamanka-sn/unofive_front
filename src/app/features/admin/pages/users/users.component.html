@@ -1,1 +1,85 @@
-<p>users works!</p>
+<p-toast></p-toast>
+<p-confirmDialog [style]="{ width: '420px' }"></p-confirmDialog>
+
+<div class="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
+
+  <header class="flex flex-wrap gap-3 items-end justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-slate-900">Utilisateurs</h1>
+      <p class="text-sm text-slate-500 mt-1">{{ users.length }} compte(s) enregistré(s)</p>
+    </div>
+    <button (click)="loadUsers()" [disabled]="loading"
+            class="flex items-center gap-2 px-3 py-2 border border-slate-300 bg-white text-sm text-slate-700 rounded-md hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50">
+      <mat-icon class="!text-lg !w-5 !h-5">refresh</mat-icon> Actualiser
+    </button>
+  </header>
+
+  <div class="relative">
+    <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">search</mat-icon>
+    <input
+      type="search"
+      [(ngModel)]="search"
+      (ngModelChange)="onSearch($event)"
+      placeholder="Rechercher par nom ou e-mail"
+      aria-label="Rechercher un utilisateur"
+      class="w-full pl-10 pr-4 py-2 bg-white border border-slate-300 rounded-md text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-slate-400">
+  </div>
+
+  <div class="bg-white rounded-lg border border-slate-200 overflow-x-auto">
+    <table class="w-full text-sm text-left">
+      <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+        <tr>
+          <th class="px-4 py-2.5 font-medium">Nom</th>
+          <th class="px-4 py-2.5 font-medium">Rôle</th>
+          <th class="px-4 py-2.5 font-medium hidden md:table-cell">Inscription</th>
+          <th class="px-4 py-2.5 font-medium w-12"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+
+      <tbody *ngIf="loading">
+        <tr *ngFor="let i of [1, 2, 3, 4]" class="border-b border-slate-100 last:border-0">
+          <td class="px-4 py-3" colspan="4"><div class="h-4 bg-slate-100 rounded w-1/3"></div></td>
+        </tr>
+      </tbody>
+
+      <tbody *ngIf="!loading" class="divide-y divide-slate-100">
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="4" class="px-4 py-10 text-center text-slate-500">
+            {{ search ? 'Aucun utilisateur ne correspond à cette recherche.' : 'Aucun utilisateur.' }}
+          </td>
+        </tr>
+
+        <tr *ngFor="let user of filtered" class="hover:bg-slate-50">
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-semibold shrink-0">
+                {{ getInitials(user.nom) }}
+              </span>
+              <div class="min-w-0">
+                <p class="font-medium text-slate-900 truncate">{{ user.nom }}</p>
+                <p class="text-slate-500 truncate">{{ user.email }}</p>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            <span class="inline-block px-2 py-0.5 rounded text-xs"
+                  [ngClass]="user.isAdmin ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'">
+              {{ user.isAdmin ? 'Administrateur' : 'Utilisateur' }}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-slate-600 hidden md:table-cell tabular-nums">{{ user.createdAt | date: 'dd/MM/yyyy' }}</td>
+          <td class="px-4 py-3 text-right">
+            <button (click)="confirmDelete(user)"
+                    [disabled]="user.isAdmin"
+                    [attr.title]="user.isAdmin ? 'Un administrateur ne peut pas être supprimé' : 'Supprimer'"
+                    [attr.aria-label]="'Supprimer ' + user.nom"
+                    class="w-8 h-8 rounded-md inline-flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-slate-500">
+              <mat-icon class="!text-lg !w-5 !h-5">delete_outline</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

@@ -105,11 +105,12 @@ private map!: L.Map;
   uploadToDatabase() {
     
     this.confirmationService.confirm({
-      header: 'Injection Géospatiale',
-      message: `Voulez-vous injecter ces ${this.previewData.length} géométries dans PostGIS ?`,
-      icon: 'pi pi-map',
-      acceptLabel: 'Synchroniser',
-      acceptButtonStyleClass: 'p-button-success',
+      header: 'Confirmer l\'import',
+      message: `Importer ${this.previewData.length} entités dans la table des pays ?`,
+      icon: 'pi pi-upload',
+      acceptLabel: 'Importer',
+      rejectLabel: 'Annuler',
+      rejectButtonStyleClass: 'p-button-secondary p-button-text',
       accept: async () => {
         await this.startImportProcess();
       }
@@ -119,29 +120,34 @@ private map!: L.Map;
   private async startImportProcess() {
     this.isProcessing = true;
     this.progress = 0;
-    this.addLog('Initialisation du moteur spatial PostGIS...', 'process');
+    this.addLog('Import démarré.', 'process');
 
     const chunkSize = 50;
     const totalRecords = this.previewData.length;
     const totalChunks = Math.ceil(totalRecords / chunkSize);
+    const totals = { inserted: 0, updated: 0 };
     try {
       for (let i = 0; i < totalRecords; i += chunkSize) {
         const chunk = this.previewData.slice(i, i + chunkSize);
         const currentBatch = Math.floor(i / chunkSize) + 1;
 
-        this.addLog(`Injection du lot spatial ${currentBatch}/${totalChunks}...`, 'info');
-        
-        await this.etlService.saveGeoJsonToDatabase(chunk).toPromise();
-        
+        this.addLog(`Lot ${currentBatch}/${totalChunks} envoyé.`, 'info');
+
+        const res: any = await this.etlService.saveGeoJsonToDatabase(chunk).toPromise();
+        totals.inserted += res?.inserted ?? 0;
+        totals.updated += res?.updated ?? 0;
+
         this.progress = Math.round((currentBatch / totalChunks) * 100);
       }
 
-      this.addLog('Indexation spatiale terminée avec succès.', 'success');
-      this.messageService.add({ severity: 'success', summary: 'PostGIS', detail: 'Données cartographiques à jour' });
-
-      setTimeout(() => this.executeReset(), 2000);
+      const summary = `${totals.inserted} pays ajoutés, ${totals.updated} déjà présents mis à jour`;
+      this.addLog(`Import terminé : ${summary}.`, 'success');
+      this.messageService.add({ severity: 'success', summary: 'Import terminé', detail: summary });
+      this.isProcessing = false;
     } catch (error: any) {
-      this.addLog(`Échec de l'injection : ${error.message}`, 'error');
+      const serverMsg = error?.error?.message || error.message;
+      this.addLog(`Erreur serveur (${error?.status ?? '?'}) : ${serverMsg}`, 'error');
+      this.messageService.add({ severity: 'error', summary: 'Import interrompu', detail: serverMsg });
       this.isProcessing = false;
     }
   }
@@ -173,12 +179,13 @@ private map!: L.Map;
       this.map.remove();
     }
 
-    // Centrage initial sur l'Afrique de l'Ouest (UNOFIVE zone)
+    // Centrage initial sur l'Afrique
     this.map = L.map('map', { zoomControl: false }).setView([12.238, -1.561], 5);
 
-    // Fond de carte minimaliste CartoDB (très propre pour les outils admin)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap'
+    // Fond gris clair Esri (sans clé d'API, contrairement à CartoDB)
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 16,
+      attribution: 'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors'
     }).addTo(this.map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(this.map);
@@ -186,11 +193,11 @@ private map!: L.Map;
 
   private displayOnMap(geoData: any) {
     const geoStyle = {
-      fillColor: '#10b981', 
-      weight: 1.5,
+      fillColor: '#64748b',
+      weight: 1,
       opacity: 1,
-      color: 'white',
-      fillOpacity: 0.4
+      color: '#ffffff',
+      fillOpacity: 0.35
     };
 
     this.geoJsonLayer = L.geoJSON(geoData, {
@@ -202,7 +209,7 @@ private map!: L.Map;
         layer.on({
           mouseover: (e) => {
             const l = e.target;
-            l.setStyle({ fillOpacity: 0.7, fillColor: '#f59e0b' }); 
+            l.setStyle({ fillOpacity: 0.6, fillColor: '#d97706' });
           },
           mouseout: (e) => {
             this.geoJsonLayer.resetStyle(e.target);
@@ -226,7 +233,6 @@ private map!: L.Map;
     this.fileName = file.name;
     this.logs = [];
     this.isProcessing = true;
-    this.addLog(`Lecture du fichier spatial : ${file.name}`, 'info');
 
     try {
       const content = await file.text();
@@ -252,19 +258,14 @@ private map!: L.Map;
       };
     });
        this.previewData = geoData.features;
-      this.addLog(`Mapping FID terminé. ${this.previewData.length} entités identifiées.`, 'success');
-      
+
       setTimeout(() => {
         this.initMap();
         this.displayOnMap(geoData);
-        this.addLog('Prévisualisation cartographique générée.', 'info');
       }, 50);
 
-      this.messageService.add({ severity: 'success', summary: 'GEO Engine', detail: 'Géométries extraites' });
-      
     } catch (error: any) {
-      this.addLog(`Erreur : ${error.message}`, 'error');
-      this.messageService.add({ severity: 'error', summary: 'Erreur JSON', detail: 'Structure invalide' });
+      this.messageService.add({ severity: 'error', summary: 'Fichier invalide', detail: error.message });
       this.fileName = '';
     } finally {
       this.isProcessing = false;
@@ -283,7 +284,6 @@ private map!: L.Map;
     }
 
     if (this.fileInput) this.fileInput.nativeElement.value = '';
-    this.addLog('Système réinitialisé et carte vidée.', 'info');
   }
 
   private addLog(message: string, type: 'info' | 'success' | 'error' | 'process' = 'info') {

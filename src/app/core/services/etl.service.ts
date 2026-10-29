@@ -5,7 +5,6 @@ import { AbstractService } from './abstract.service';
 import * as XLSX from 'xlsx';
 import { Observable, from, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { AFRICA_FID_MAPPING } from '../constants/geo.constants';
 @Injectable({
   providedIn: 'root'
 })
@@ -80,10 +79,9 @@ private readonly COLUMN_MAPPING: any = {
       cleanedRow['start_date'] = this.createIsoDate(row, 'Start');
       cleanedRow['end_date'] = this.createIsoDate(row, 'End');
 
-      cleanedRow['fid'] = AFRICA_FID_MAPPING[cleanedRow['iso']] || null;
-
+      // Le fid est résolu par le backend à partir de l'ISO (table countries)
       return cleanedRow;
-    }).filter(item => item.fid !== null); 
+    }).filter(item => item.iso);
   }
 
   private createIsoDate(row: any, prefix: string): string | null {

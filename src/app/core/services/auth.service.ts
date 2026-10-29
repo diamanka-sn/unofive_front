@@ -57,6 +57,15 @@ export class AuthService extends AbstractService<any> {
     );
   }
 
+  // Les erreurs remontent à la page (message affiché dans le formulaire), sans snackbar générique
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this['http'].post<{ message: string }>(`${this.apiUrl}/users/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, password: string): Observable<{ message: string }> {
+    return this['http'].post<{ message: string }>(`${this.apiUrl}/users/reset-password`, { token, password });
+  }
+
   logout() {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_info');
